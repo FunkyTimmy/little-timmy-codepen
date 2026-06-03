@@ -1,0 +1,3398 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phimmy Physics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --bg: #1b1b1f;
+      --bar: #232328;
+      --toolbar: #2a2a30;
+      --border: #3a3a42;
+      --fg: #e8e8e8;
+      --muted: #888890;
+      --hover: #35353d;
+      --active: #4a4a55;
+      --ui-scale: 1
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: 'Space Mono', monospace;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none
+    }
+
+    .top-bar {
+      height: 42px;
+      background: var(--bar);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 calc(14px * var(--ui-scale));
+      flex-shrink: 0;
+      gap: calc(6px * var(--ui-scale));
+      position: relative;
+      z-index: 50
+    }
+
+    .logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: calc(11px * var(--ui-scale));
+      color: var(--fg);
+      margin-right: calc(18px * var(--ui-scale));
+      letter-spacing: 1px
+    }
+
+    .top-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: calc(11px * var(--ui-scale));
+      color: var(--muted);
+      background: none;
+      border: none;
+      padding: calc(6px * var(--ui-scale)) calc(10px * var(--ui-scale));
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background .1s
+    }
+
+    .top-btn:hover {
+      background: var(--hover);
+      color: var(--fg)
+    }
+
+    .spacer {
+      flex: 1
+    }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: calc(14px * var(--ui-scale));
+      padding: calc(6px * var(--ui-scale)) calc(8px * var(--ui-scale));
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background .1s
+    }
+
+    .icon-btn:hover {
+      background: var(--hover);
+      color: var(--fg)
+    }
+
+    .settings-wrap {
+      position: relative
+    }
+
+    .settings-panel {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: var(--bar);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: calc(14px * var(--ui-scale));
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      gap: calc(10px * var(--ui-scale));
+      min-width: 250px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .5)
+    }
+
+    .settings-panel.open {
+      display: flex
+    }
+
+    .set-row {
+      display: flex;
+      align-items: center;
+      gap: calc(8px * var(--ui-scale));
+      font-size: calc(10px * var(--ui-scale));
+      color: var(--muted);
+      font-family: 'Space Mono', monospace
+    }
+
+    .set-row span:first-child {
+      width: 80px;
+      flex-shrink: 0
+    }
+
+    .set-row input[type=range] {
+      flex: 1;
+      accent-color: var(--fg);
+      height: 3px
+    }
+
+    .set-row .set-val {
+      width: 28px;
+      text-align: right
+    }
+
+    .toolbar {
+      height: 46px;
+      background: var(--toolbar);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 calc(10px * var(--ui-scale));
+      flex-shrink: 0;
+      gap: calc(2px * var(--ui-scale));
+      overflow-x: auto
+    }
+
+    .tool-cat {
+      font-family: 'Space Mono', monospace;
+      font-size: calc(10px * var(--ui-scale));
+      color: var(--muted);
+      background: none;
+      border: 1px solid transparent;
+      padding: calc(6px * var(--ui-scale)) calc(12px * var(--ui-scale));
+      cursor: pointer;
+      border-radius: 5px;
+      transition: all .1s;
+      display: flex;
+      align-items: center;
+      gap: calc(6px * var(--ui-scale));
+      white-space: nowrap;
+      flex-shrink: 0
+    }
+
+    .tool-cat:hover {
+      background: var(--hover);
+      color: var(--fg)
+    }
+
+    .tool-cat.active {
+      background: var(--active);
+      color: var(--fg);
+      border-color: var(--border)
+    }
+
+    .tool-cat i {
+      font-size: calc(12px * var(--ui-scale));
+      width: calc(14px * var(--ui-scale));
+      text-align: center
+    }
+
+    .tool-sep {
+      width: 1px;
+      height: calc(24px * var(--ui-scale));
+      background: var(--border);
+      margin: 0 calc(6px * var(--ui-scale));
+      flex-shrink: 0
+    }
+
+    .sub-toolbar {
+      height: 44px;
+      background: var(--bar);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 calc(10px * var(--ui-scale));
+      flex-shrink: 0;
+      gap: calc(4px * var(--ui-scale))
+    }
+
+    #subContent {
+      display: flex;
+      align-items: center;
+      gap: calc(4px * var(--ui-scale));
+      flex: 1;
+      min-width: 0;
+      overflow-x: auto
+    }
+
+    .mat-pick {
+      width: calc(34px * var(--ui-scale));
+      height: calc(34px * var(--ui-scale));
+      border: 2px solid transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .1s;
+      position: relative;
+      background: var(--toolbar);
+      flex-shrink: 0
+    }
+
+    .mat-pick:hover {
+      border-color: var(--border)
+    }
+
+    .mat-pick.active {
+      border-color: #fff;
+      background: var(--active)
+    }
+
+    .mat-pick img {
+      width: calc(18px * var(--ui-scale));
+      height: calc(18px * var(--ui-scale));
+      image-rendering: pixelated;
+      border-radius: 2px;
+      display: block
+    }
+
+    .mat-pick .label {
+      position: absolute;
+      bottom: 0;
+      font-size: calc(6px * var(--ui-scale));
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      line-height: 1
+    }
+
+    .sub-msg {
+      font-size: calc(10px * var(--ui-scale));
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      white-space: nowrap
+    }
+
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: calc(6px * var(--ui-scale));
+      font-size: calc(10px * var(--ui-scale));
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      flex-shrink: 0;
+      margin-left: calc(8px * var(--ui-scale))
+    }
+
+    .ctrl-group input[type=range] {
+      width: 60px;
+      accent-color: var(--fg);
+      height: 3px
+    }
+
+    .ctrl-group select {
+      background: var(--toolbar);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: calc(9px * var(--ui-scale));
+      cursor: pointer
+    }
+
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #111114;
+      overflow: hidden;
+      position: relative
+    }
+
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      cursor: crosshair;
+      display: block
+    }
+
+    .bottom-bar {
+      height: 40px;
+      background: var(--bar);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 calc(14px * var(--ui-scale));
+      flex-shrink: 0;
+      gap: calc(6px * var(--ui-scale))
+    }
+
+    .bottom-btn {
+      font-family: 'Space Mono', monospace;
+      font-size: calc(10px * var(--ui-scale));
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--border);
+      padding: calc(4px * var(--ui-scale)) calc(10px * var(--ui-scale));
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all .1s;
+      white-space: nowrap
+    }
+
+    .bottom-btn:hover {
+      background: var(--hover);
+      color: var(--fg)
+    }
+
+    .seed-input {
+      background: var(--toolbar);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: calc(4px * var(--ui-scale)) calc(8px * var(--ui-scale));
+      font-family: 'Space Mono', monospace;
+      font-size: calc(10px * var(--ui-scale));
+      width: 110px;
+      outline: none
+    }
+
+    .seed-input:focus {
+      border-color: var(--muted)
+    }
+
+    .scene-tabs {
+      display: flex;
+      gap: 2px;
+      margin-left: calc(8px * var(--ui-scale))
+    }
+
+    .scene-tab {
+      font-family: 'Space Mono', monospace;
+      font-size: calc(10px * var(--ui-scale));
+      color: var(--muted);
+      background: none;
+      border: 1px solid transparent;
+      padding: calc(4px * var(--ui-scale)) calc(10px * var(--ui-scale));
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all .1s;
+      white-space: nowrap
+    }
+
+    .scene-tab:hover {
+      color: var(--fg)
+    }
+
+    .scene-tab.active {
+      background: var(--active);
+      color: var(--fg);
+      border-color: var(--border)
+    }
+
+    .particle-count {
+      font-size: calc(9px * var(--ui-scale));
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      white-space: nowrap
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000
+    }
+
+    .modal-overlay.open {
+      display: flex
+    }
+
+    .modal-box {
+      background: var(--bar);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: calc(20px * var(--ui-scale));
+      max-width: 500px;
+      width: 90%;
+      max-height: 70vh;
+      overflow-y: auto;
+      color: var(--fg);
+      font-family: 'Space Mono', monospace;
+      font-size: calc(11px * var(--ui-scale));
+      line-height: 1.6;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7)
+    }
+
+    .modal-box h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: calc(13px * var(--ui-scale));
+      margin-bottom: calc(12px * var(--ui-scale));
+      color: var(--fg)
+    }
+
+    .modal-box p {
+      margin-bottom: calc(8px * var(--ui-scale));
+      color: var(--muted)
+    }
+
+    .modal-box b {
+      color: var(--fg)
+    }
+
+    .modal-box .close-modal {
+      margin-top: calc(14px * var(--ui-scale));
+      background: var(--active);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      padding: calc(6px * var(--ui-scale)) calc(16px * var(--ui-scale));
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: 'Space Mono', monospace;
+      font-size: calc(10px * var(--ui-scale))
+    }
+
+    .modal-box .close-modal:hover {
+      background: var(--hover)
+    }
+
+    @media(max-width:700px) {
+      .top-btn {
+        display: none
+      }
+
+      .tool-cat span {
+        display: none
+      }
+
+      .tool-cat {
+        padding: calc(6px * var(--ui-scale)) calc(8px * var(--ui-scale))
+      }
+
+      .seed-input {
+        width: 60px
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-bar" id="topBar">
+    <div class="logo">PHIMMY PHYSICS</div>
+    <button class="top-btn" id="aboutBtn">About</button>
+    <button class="top-btn" id="manualBtn">Manual</button>
+    <a href="#" class="top-btn" style="text-decoration:none;color:inherit">Premium</a>
+    <div class="spacer"></div>
+    <div class="settings-wrap">
+      <button class="icon-btn" id="settingsBtn"><i class="fas fa-cog"></i></button>
+      <div class="settings-panel" id="settingsPanel">
+        <div class="set-row"><span>UI Scale</span><input type="range" min="6" max="18" value="10" id="uiScaleSlider"><span class="set-val">1.0</span></div>
+        <div class="set-row"><span>Top Bar</span><input type="range" min="20" max="80" value="42" data-target="topBar"><span class="set-val">42</span></div>
+        <div class="set-row"><span>Toolbar</span><input type="range" min="20" max="80" value="46" data-target="toolbarRow"><span class="set-val">46</span></div>
+        <div class="set-row"><span>Sub Bar</span><input type="range" min="20" max="80" value="44" data-target="subToolBar"><span class="set-val">44</span></div>
+        <div class="set-row"><span>Bottom Bar</span><input type="range" min="20" max="80" value="40" data-target="bottomBar"><span class="set-val">40</span></div>
+        <div class="set-row"><span>World W</span><input type="number" id="worldW" min="200" max="4000" value="1680" style="width:60px;background:var(--toolbar);color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:2px 4px;font-family:'Space Mono',monospace;font-size:calc(9px * var(--ui-scale))"><span class="set-val"></span></div>
+        <div class="set-row"><span>World H</span><input type="number" id="worldH" min="100" max="2000" value="540" style="width:60px;background:var(--toolbar);color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:2px 4px;font-family:'Space Mono',monospace;font-size:calc(9px * var(--ui-scale))"><span class="set-val"></span></div>
+        <div class="set-row"><span>Air Height</span><input type="number" id="airHeight" min="20" max="800" value="120" style="width:60px;background:var(--toolbar);color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:2px 4px;font-family:'Space Mono',monospace;font-size:calc(9px * var(--ui-scale))"><span class="set-val"></span></div>
+        <button id="settingsSaveBtn" style="background:var(--active);color:var(--fg);border:1px solid var(--border);padding:calc(6px * var(--ui-scale)) 0;cursor:pointer;border-radius:4px;font-family:'Space Mono',monospace;font-size:calc(10px * var(--ui-scale));margin-top:calc(4px * var(--ui-scale))">Save Settings</button>
+      </div>
+    </div>
+    <button class="top-btn" id="loginBtn">Login</button>
+    <button class="icon-btn" id="bellBtn"><i class="fas fa-bell"></i></button>
+  </div>
+  <div class="toolbar" id="toolbarRow"></div>
+  <div class="sub-toolbar" id="subToolBar">
+    <div id="subContent"></div>
+    <div class="ctrl-group" id="dirGroup" style="display:none"><span>Dir</span><select id="conveyorDir">
+        <option value="0">Right</option>
+        <option value="1">Left</option>
+      </select>
+    </div>
+    <div class="ctrl-group"><span>Brush</span><input type="range" id="brushSize" min="0" max="200" value="0"><span id="brushVal">0</span></div>
+    <div class="ctrl-group"><span>Speed</span><select id="simSpeed"></select></div>
+    <div id="selectPanel" style="display:none;align-items:center;gap:calc(6px * var(--ui-scale));flex:1">
+      <span class="sub-msg" id="selCount">0 selected</span>
+      <select id="selDir" style="background:var(--toolbar);color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:2px 4px;font-family:'Space Mono',monospace;font-size:calc(9px * var(--ui-scale));cursor:pointer;display:none">
+        <option value="0">Right</option>
+        <option value="1">Left</option>
+      </select>
+      <button class="bottom-btn" id="selRotate" style="padding:calc(3px * var(--ui-scale)) calc(8px * var(--ui-scale))">Rotate</button>
+      <button class="bottom-btn" id="selDelete" style="padding:calc(3px * var(--ui-scale)) calc(8px * var(--ui-scale))">Delete</button>
+    </div>
+  </div>
+  <div class="canvas-area"><canvas id="sandbox"></canvas></div>
+  <div class="bottom-bar" id="bottomBar">
+    <button class="bottom-btn" id="importBtn"><i class="fas fa-file-import"></i> Import</button>
+    <button class="bottom-btn" id="exportBtn"><i class="fas fa-file-export"></i> Export</button>
+    <button class="bottom-btn" id="clearBtn"><i class="fas fa-trash"></i> Clear</button>
+    <input class="seed-input" id="seedInput" placeholder="Seed..." value="">
+    <button class="bottom-btn" id="genBtn"><i class="fas fa-globe"></i> Generate</button>
+    <div class="scene-tabs">
+      <button class="scene-tab" data-scene="blank">Blank</button>
+      <button class="scene-tab active" data-scene="landscape">Landscape</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="particle-count" id="zoomInd" style="margin-left:calc(8px * var(--ui-scale))">1.0x</div>
+    <div class="particle-count" id="pCount">0 particles</div>
+  </div>
+  <script>
+    var canvas = document.getElementById('sandbox');
+    var ctx = canvas.getContext('2d');
+    var WCOLS = 1680,
+      WROWS = 540,
+      COLS = 280,
+      ROWS = 180,
+      PIXEL = 4;
+    canvas.width = COLS * PIXEL;
+    canvas.height = ROWS * PIXEL;
+    var viewX = 0,
+      viewY = 0,
+      BUF = 80;
+    var simX0 = 0,
+      simY0 = 0,
+      simX1 = COLS,
+      simY1 = ROWS;
+    var EMPTY = 0,
+      SAND = 1,
+      DIRT = 2,
+      WATER = 3,
+      STONE = 4,
+      WOOD = 5,
+      LEAF = 6,
+      FIRE = 7,
+      SMOKE = 8,
+      LAVA = 9,
+      SEED = 10;
+    var GROWING = 11,
+      CHARCOAL = 12,
+      STEAM = 13,
+      CONVEYOR = 14,
+      GRINDER = 15,
+      LIGHTNING = 16,
+      SAWDUST = 17,
+      GRAVEL = 18,
+      TNT = 19,
+      NUKE = 20,
+      FUSE = 21,
+      SPARK = 22;
+    var grid = new Uint8Array(WCOLS * WROWS);
+    var colorGrid = new Uint32Array(WCOLS * WROWS);
+    var lifetime = new Int16Array(WCOLS * WROWS);
+    var growthStage = new Uint8Array(WCOLS * WROWS);
+    var treeMaxStage = new Uint8Array(WCOLS * WROWS);
+    var supported = new Uint8Array(WCOLS * WROWS);
+    var processed = new Uint8Array(WCOLS * WROWS);
+    var upd = new Uint8Array(WCOLS * WROWS);
+    var visGen = new Uint32Array(WCOLS * WROWS);
+    var visCounter = 1;
+    var machineDir = new Uint8Array(WCOLS * WROWS);
+    var machineLX = new Uint8Array(WCOLS * WROWS);
+    var machineLY = new Uint8Array(WCOLS * WROWS);
+    var treeOwner = new Uint8Array(WCOLS * WROWS);
+    var nextTreeID = 1;
+    var activeTreeOwner = 0;
+    var IMG_SAND = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23d4a843'/%3E%3C/svg%3E";
+    var IMG_DIRT = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%236e4b2d'/%3E%3C/svg%3E";
+    var IMG_SEED = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%238c6432'/%3E%3C/svg%3E";
+    var IMG_STONE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23646469'/%3E%3C/svg%3E";
+    var IMG_WOOD = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%235a3a1c'/%3E%3C/svg%3E";
+    var IMG_LEAF = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%231e781e'/%3E%3C/svg%3E";
+    var IMG_WATER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23286ec3'/%3E%3C/svg%3E";
+    var IMG_LAVA = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23dc3c0a'/%3E%3C/svg%3E";
+    var IMG_FIRE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23ff6414'/%3E%3C/svg%3E";
+    var IMG_SMOKE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%2346464b'/%3E%3C/svg%3E";
+    var IMG_ERASE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%232a2a30'/%3E%3C/svg%3E";
+    var IMG_STEAM = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23b8b8c0'/%3E%3C/svg%3E";
+    var IMG_CONVEYOR = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%232a5a5a'/%3E%3C/svg%3E";
+    var IMG_GRINDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%235a2a2a'/%3E%3C/svg%3E";
+    var IMG_LIGHTNING = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23ffff40'/%3E%3C/svg%3E";
+    var IMG_SAWDUST = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23c4a868'/%3E%3C/svg%3E";
+    var IMG_GRAVEL = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%237a7a70'/%3E%3C/svg%3E";
+    var IMG_TNT = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23c82820'/%3E%3C/svg%3E";
+    var IMG_NUKE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%2350dc3c'/%3E%3C/svg%3E";
+    var IMG_FUSE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%237a4a20'/%3E%3C/svg%3E";
+    var IMG_SPARK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18'%3E%3Crect width='18' height='18' fill='%23ffff80'/%3E%3C/svg%3E";
+    var currentMat = SAND,
+      brushRadius = 0,
+      simSpeed = 1,
+      currentCat = 'powders',
+      currentConveyorDir = 0;
+    var mouseDown = false,
+      mouseRight = false,
+      isPanning = false;
+    var mouseWorldX = -100,
+      mouseWorldY = -100;
+    var prevWorldX = -100,
+      prevWorldY = -100;
+    var panStartSX = 0,
+      panStartSY = 0,
+      panStartVX = 0,
+      panStartVY = 0;
+    var frameCount = 0,
+      isDrawingSolids = false;
+    var zoom = 1.0,
+      ePix = PIXEL,
+      visibleCols = COLS,
+      visibleRows = ROWS;
+    var shiftLineActive = false,
+      shiftLineStartX = 0,
+      shiftLineStartY = 0,
+      shiftLineEndX = 0,
+      shiftLineEndY = 0;
+    var selectedCells = [],
+      selectedSet = new Set();
+    var boxSelecting = false,
+      boxStartX = 0,
+      boxStartY = 0,
+      boxEndX = 0,
+      boxEndY = 0;
+    var CONV_W = 24,
+      CONV_H = 2,
+      GRIND_W = 12,
+      GRIND_H = 6;
+    var palettes = {};
+    palettes[SAND] = [
+      [212, 168, 67],
+      [218, 174, 73],
+      [205, 160, 58],
+      [220, 180, 80],
+      [200, 155, 55]
+    ];
+    palettes[DIRT] = [
+      [110, 75, 45],
+      [100, 68, 40],
+      [120, 82, 50],
+      [95, 62, 36],
+      [115, 78, 48]
+    ];
+    palettes[WATER] = [
+      [40, 110, 195],
+      [48, 120, 205],
+      [32, 100, 185],
+      [55, 130, 215],
+      [28, 92, 175]
+    ];
+    palettes[STONE] = [
+      [100, 100, 105],
+      [90, 90, 95],
+      [110, 110, 115],
+      [85, 85, 90],
+      [115, 115, 120]
+    ];
+    palettes[WOOD] = [
+      [90, 58, 28],
+      [82, 52, 22],
+      [98, 64, 34],
+      [78, 48, 18],
+      [102, 68, 38]
+    ];
+    palettes[LEAF] = [
+      [30, 120, 30],
+      [36, 132, 36],
+      [24, 108, 24],
+      [42, 144, 42],
+      [20, 100, 20]
+    ];
+    palettes[FIRE] = [
+      [255, 100, 20],
+      [255, 140, 30],
+      [255, 60, 10],
+      [255, 180, 50],
+      [240, 50, 5]
+    ];
+    palettes[SMOKE] = [
+      [70, 70, 75],
+      [60, 60, 65],
+      [80, 80, 85],
+      [55, 55, 60],
+      [85, 85, 90]
+    ];
+    palettes[LAVA] = [
+      [220, 60, 10],
+      [240, 90, 15],
+      [200, 40, 5],
+      [255, 120, 30],
+      [190, 30, 0]
+    ];
+    palettes[SEED] = [
+      [140, 100, 50],
+      [130, 90, 40],
+      [150, 110, 60],
+      [125, 85, 35],
+      [145, 105, 55]
+    ];
+    palettes[GROWING] = [
+      [90, 58, 28],
+      [82, 52, 22],
+      [98, 64, 34],
+      [78, 48, 18],
+      [102, 68, 38]
+    ];
+    palettes[CHARCOAL] = [
+      [32, 30, 28],
+      [38, 36, 34],
+      [26, 24, 22],
+      [44, 42, 40],
+      [22, 20, 18]
+    ];
+    palettes[STEAM] = [
+      [180, 180, 190],
+      [170, 170, 180],
+      [190, 190, 200],
+      [160, 160, 170],
+      [200, 200, 210]
+    ];
+    palettes[CONVEYOR] = [
+      [42, 90, 90],
+      [38, 82, 82],
+      [46, 98, 98],
+      [34, 75, 75],
+      [50, 105, 105]
+    ];
+    palettes[GRINDER] = [
+      [90, 42, 42],
+      [82, 38, 38],
+      [98, 46, 46],
+      [75, 34, 34],
+      [105, 50, 50]
+    ];
+    palettes[LIGHTNING] = [
+      [255, 255, 200],
+      [255, 255, 255],
+      [255, 255, 150],
+      [255, 240, 180],
+      [200, 200, 255]
+    ];
+    palettes[SAWDUST] = [
+      [196, 168, 104],
+      [186, 158, 94],
+      [206, 178, 114],
+      [180, 150, 88],
+      [210, 185, 120]
+    ];
+    palettes[GRAVEL] = [
+      [122, 122, 112],
+      [112, 112, 102],
+      [132, 132, 122],
+      [105, 105, 95],
+      [140, 140, 130]
+    ];
+    palettes[TNT] = [
+      [200, 40, 30],
+      [190, 35, 25],
+      [210, 50, 35],
+      [180, 30, 20],
+      [215, 55, 40]
+    ];
+    palettes[NUKE] = [
+      [80, 220, 60],
+      [70, 210, 50],
+      [90, 230, 70],
+      [60, 200, 40],
+      [95, 240, 80]
+    ];
+    palettes[FUSE] = [
+      [122, 74, 32],
+      [112, 66, 26],
+      [132, 82, 38],
+      [105, 60, 22],
+      [138, 88, 44]
+    ];
+    palettes[SPARK] = [
+      [255, 255, 128],
+      [255, 255, 200],
+      [255, 240, 100],
+      [255, 255, 255],
+      [255, 220, 80]
+    ];
+
+    function rc(mat) {
+      var p = palettes[mat];
+      if (!p) return 0;
+      var c = p[Math.floor(Math.random() * p.length)];
+      var v = (Math.random() * 16 - 8) | 0;
+      return (255 << 24) | (Math.max(0, Math.min(255, c[2] + v)) << 16) | (Math.max(0, Math.min(255, c[1] + v)) << 8) | Math.max(0, Math.min(255, c[0] + v));
+    }
+
+    function I(x, y) {
+      return y * WCOLS + x;
+    }
+
+    function inB(x, y) {
+      return x >= 0 && x < WCOLS && y >= 0 && y < WROWS;
+    }
+
+    function get(x, y) {
+      return inB(x, y) ? grid[I(x, y)] : STONE;
+    }
+
+    function isSolid(m) {
+      return m === STONE || m === WOOD || m === CHARCOAL;
+    }
+
+    function isMachine(m) {
+      return m === CONVEYOR || m === GRINDER;
+    }
+
+    function setCell(x, y, mat) {
+      if (!inB(x, y)) return;
+      var i = I(x, y);
+      grid[i] = mat;
+      colorGrid[i] = mat === EMPTY ? 0 : rc(mat);
+      growthStage[i] = 0;
+      treeMaxStage[i] = 0;
+      if (activeTreeOwner > 0 && (mat === WOOD || mat === LEAF)) treeOwner[i] = activeTreeOwner;
+      else if (mat === EMPTY) treeOwner[i] = 0;
+      if (mat === FIRE) lifetime[i] = 50 + Math.floor(Math.random() * 40);
+      else if (mat === SMOKE) lifetime[i] = 120 + Math.floor(Math.random() * 120);
+      else if (mat === STEAM) lifetime[i] = 100 + Math.floor(Math.random() * 100);
+      else if (mat === LIGHTNING) lifetime[i] = 2 + Math.floor(Math.random() * 4);
+      else if (mat === SPARK) lifetime[i] = 6 + Math.floor(Math.random() * 10);
+      else if (mat === CONVEYOR) machineDir[i] = currentConveyorDir;
+      else lifetime[i] = 0;
+    }
+
+    function swap(x1, y1, x2, y2) {
+      var i1 = I(x1, y1),
+        i2 = I(x2, y2);
+      var tg = grid[i1];
+      grid[i1] = grid[i2];
+      grid[i2] = tg;
+      var tc = colorGrid[i1];
+      colorGrid[i1] = colorGrid[i2];
+      colorGrid[i2] = tc;
+      var tl = lifetime[i1];
+      lifetime[i1] = lifetime[i2];
+      lifetime[i2] = tl;
+    }
+
+    function tryFall(x, y, dispLiq) {
+      if (y + 1 >= WROWS) return false;
+      var b = get(x, y + 1);
+      if (b === EMPTY) {
+        swap(x, y, x, y + 1);
+        return true;
+      }
+      if (dispLiq && (b === WATER || b === LAVA || b === STEAM)) {
+        var aboveM = y > 0 ? get(x, y - 1) : STONE;
+        if (aboveM === EMPTY || aboveM === WATER || aboveM === LAVA || aboveM === STEAM || aboveM === SMOKE) {
+          swap(x, y, x, y + 1);
+          return true;
+        }
+      }
+      var dir = Math.random() < 0.5 ? -1 : 1;
+      for (var d = 0; d < 2; d++) {
+        var dd = d === 0 ? dir : -dir;
+        var nx = x + dd;
+        if (inB(nx, y + 1)) {
+          var nb = get(nx, y + 1);
+          if (nb === EMPTY) {
+            swap(x, y, nx, y + 1);
+            return true;
+          }
+          if (dispLiq && (nb === WATER || nb === LAVA || nb === STEAM)) {
+            var aboveM2 = y > 0 ? get(x, y - 1) : STONE;
+            if (aboveM2 === EMPTY || aboveM2 === WATER || aboveM2 === LAVA || aboveM2 === STEAM || aboveM2 === SMOKE) {
+              swap(x, y, nx, y + 1);
+              return true;
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+    function markSupported() {
+      supported.fill(0);
+      for (var i = 0; i < grid.length; i++) {
+        if (isMachine(grid[i])) supported[i] = 1;
+      }
+      var q = [],
+        h = 0;
+      for (var x = 0; x < WCOLS; x++) {
+        var bi = I(x, WROWS - 1);
+        if (isSolid(grid[bi])) {
+          supported[bi] = 1;
+          q.push(x, WROWS - 1);
+        }
+      }
+      for (var sx2 = 0; sx2 < WCOLS; sx2++) {
+        for (var sy2 = 0; sy2 < WROWS - 1; sy2++) {
+          var si2 = I(sx2, sy2);
+          if (isSolid(grid[si2]) && grid[I(sx2, sy2 + 1)] === CONVEYOR) {
+            supported[si2] = 1;
+            q.push(sx2, sy2);
+          }
+        }
+      }
+      var dirs = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1]
+      ];
+      while (h < q.length) {
+        var cx = q[h++],
+          cy = q[h++];
+        for (var d = 0; d < 4; d++) {
+          var nx = cx + dirs[d][0],
+            ny = cy + dirs[d][1];
+          if (!inB(nx, ny)) continue;
+          var ni = I(nx, ny);
+          if (!supported[ni] && isSolid(grid[ni])) {
+            supported[ni] = 1;
+            q.push(nx, ny);
+          }
+        }
+      }
+    }
+
+    function updateRigidBodies() {
+      markSupported();
+      processed.fill(0);
+      var dirs = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1]
+      ];
+      visCounter++;
+      if (visCounter > 0x7FFFFFFF) {
+        visGen.fill(0);
+        visCounter = 1;
+      }
+      for (var y = simY1 - 2; y >= simY0; y--) {
+        for (var x = simX0; x < simX1; x++) {
+          var i = I(x, y);
+          if (processed[i]) continue;
+          var m = grid[i];
+          if (!isSolid(m)) continue;
+          if (supported[i]) continue;
+          var cluster = [];
+          var cq = [x, y];
+          var cqHead = 0;
+          visGen[i] = visCounter;
+          var hasSup = false;
+          while (cqHead < cq.length) {
+            var cx = cq[cqHead++],
+              cy = cq[cqHead++];
+            cluster.push(cx, cy);
+            if (supported[I(cx, cy)]) hasSup = true;
+            for (var d = 0; d < 4; d++) {
+              var nx = cx + dirs[d][0],
+                ny = cy + dirs[d][1];
+              if (nx < simX0 || nx >= simX1 || ny < simY0 || ny >= simY1) continue;
+              var ni = I(nx, ny);
+              if (visGen[ni] !== visCounter && grid[ni] === m) {
+                visGen[ni] = visCounter;
+                cq.push(nx, ny);
+              }
+            }
+          }
+          for (var ci = 0; ci < cluster.length; ci += 2) processed[I(cluster[ci], cluster[ci + 1])] = 1;
+          if (hasSup) continue;
+          var canFall = true;
+          for (var ci2 = 0; ci2 < cluster.length; ci2 += 2) {
+            var cx2 = cluster[ci2],
+              cy2 = cluster[ci2 + 1];
+            if (cy2 + 1 >= WROWS) {
+              canFall = false;
+              break;
+            }
+            var b = get(cx2, cy2 + 1);
+            if (b !== EMPTY && b !== WATER && b !== LAVA && b !== STEAM && b !== m && !isMachine(b)) {
+              canFall = false;
+              break;
+            }
+            if ((b === WATER || b === LAVA || b === STEAM) && cy2 > 0) {
+              var abv = get(cx2, cy2 - 1);
+              if (abv !== EMPTY && abv !== WATER && abv !== LAVA && abv !== STEAM && abv !== SMOKE && abv !== m) {
+                canFall = false;
+                break;
+              }
+            }
+          }
+          if (!canFall) continue;
+          var sorted = [];
+          for (var ci3 = 0; ci3 < cluster.length; ci3 += 2) sorted.push({
+            x: cluster[ci3],
+            y: cluster[ci3 + 1]
+          });
+          sorted.sort(function(a, b) {
+            return b.y - a.y;
+          });
+          for (var si = 0; si < sorted.length; si++) {
+            var sx = sorted[si].x,
+              sy = sorted[si].y;
+            if (sy + 1 < WROWS) {
+              var below = get(sx, sy + 1);
+              if (below === EMPTY) {
+                swap(sx, sy, sx, sy + 1);
+                processed[I(sx, sy + 1)] = 1;
+              } else if ((below === WATER || below === LAVA || below === STEAM) && sy > 0) {
+                var aboveRigid = get(sx, sy - 1);
+                if (aboveRigid === EMPTY || aboveRigid === WATER || aboveRigid === LAVA || aboveRigid === STEAM || aboveRigid === SMOKE) {
+                  swap(sx, sy, sx, sy + 1);
+                  processed[I(sx, sy + 1)] = 1;
+                }
+              }
+            }
+          }
+        }
+      }
+      var convVisCounter = visCounter + 1;
+      if (convVisCounter > 0x7FFFFFFF) convVisCounter = 1;
+      var convProcessed = new Uint8Array(WCOLS * WROWS);
+      for (var cy2 = simY0; cy2 < simY1; cy2++) {
+        for (var cx2 = simX0; cx2 < simX1; cx2++) {
+          var ci2 = I(cx2, cy2);
+          if (convProcessed[ci2]) continue;
+          if (!isSolid(grid[ci2])) continue;
+          var belowI = cy2 + 1 < WROWS ? I(cx2, cy2 + 1) : -1;
+          if (belowI < 0 || grid[belowI] !== CONVEYOR) continue;
+          var convDir = machineDir[belowI];
+          var convCooldown = ((cx2 * 7 + cy2 * 13 + frameCount) % 3);
+          if (convCooldown !== 0) continue;
+          var cdx2 = 0,
+            cdy2 = 0;
+          if (convDir === 0) cdx2 = 1;
+          else if (convDir === 1) cdx2 = -1;
+          else if (convDir === 2) cdy2 = -1;
+          else cdy2 = 1;
+          var clM = grid[ci2];
+          var clCells = [];
+          var clQ = [cx2, cy2];
+          var clH = 0;
+          var clVis = new Uint8Array(WCOLS * WROWS);
+          clVis[ci2] = 1;
+          while (clH < clQ.length) {
+            var qx = clQ[clH++],
+              qy = clQ[clH++];
+            clCells.push(qx, qy);
+            var ndirs = [
+              [-1, 0],
+              [1, 0],
+              [0, -1],
+              [0, 1]
+            ];
+            for (var nd = 0; nd < 4; nd++) {
+              var nnx = qx + ndirs[nd][0],
+                nny = qy + ndirs[nd][1];
+              if (!inB(nnx, nny)) continue;
+              var nni = I(nnx, nny);
+              if (!clVis[nni] && grid[nni] === clM) {
+                clVis[nni] = 1;
+                clQ.push(nnx, nny);
+              }
+            }
+          }
+          var canSlide = true;
+          for (var ci4 = 0; ci4 < clCells.length; ci4 += 2) {
+            var nx4 = clCells[ci4] + cdx2,
+              ny4 = clCells[ci4 + 1] + cdy2;
+            if (!inB(nx4, ny4)) {
+              canSlide = false;
+              break;
+            }
+            var nc4 = get(nx4, ny4);
+            if (nc4 !== EMPTY && nc4 !== clM) {
+              canSlide = false;
+              break;
+            }
+          }
+          if (!canSlide) continue;
+          var slideOrder = [];
+          for (var ci5 = 0; ci5 < clCells.length; ci5 += 2) slideOrder.push({
+            x: clCells[ci5],
+            y: clCells[ci5 + 1]
+          });
+          slideOrder.sort(function(a, b) {
+            return (cdx2 > 0 || cdy2 > 0) ? (b.x - a.x + b.y - a.y) : (a.x - b.x + a.y - b.y);
+          });
+          for (var si2 = 0; si2 < slideOrder.length; si2++) {
+            var ox = slideOrder[si2].x,
+              oy = slideOrder[si2].y;
+            var destX = ox + cdx2,
+              destY = oy + cdy2;
+            swap(ox, oy, destX, destY);
+            convProcessed[I(destX, destY)] = 1;
+          }
+          for (var ci6 = 0; ci6 < slideOrder.length; ci6++) convProcessed[I(slideOrder[ci6].x, slideOrder[ci6].y)] = 1;
+        }
+      }
+    }
+
+    function growToStage(sx, sy, stage) {
+      var owner = treeOwner[I(sx, sy)];
+      activeTreeOwner = owner;
+      for (var dy = -15; dy <= 2; dy++)
+        for (var dx = -8; dx <= 8; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          var nx = sx + dx,
+            ny = sy + dy;
+          if (!inB(nx, ny)) continue;
+          var ni = I(nx, ny);
+          var nm = grid[ni];
+          if ((nm === WOOD || nm === LEAF) && treeOwner[ni] === owner) setCell(nx, ny, EMPTY);
+        }
+      if (stage === 1) {
+        colorGrid[I(sx, sy)] = rc(LEAF);
+        if (inB(sx, sy - 1) && get(sx, sy - 1) === EMPTY) setCell(sx, sy - 1, LEAF);
+      } else if (stage === 2) {
+        colorGrid[I(sx, sy)] = rc(WOOD);
+        if (inB(sx, sy - 1) && get(sx, sy - 1) === EMPTY) setCell(sx, sy - 1, WOOD);
+        if (inB(sx, sy - 2) && get(sx, sy - 2) === EMPTY) setCell(sx, sy - 2, LEAF);
+      } else if (stage === 3) {
+        colorGrid[I(sx, sy)] = rc(WOOD);
+        for (var dy = 1; dy <= 3; dy++)
+          if (inB(sx, sy - dy) && get(sx, sy - dy) === EMPTY) setCell(sx, sy - dy, WOOD);
+        if (inB(sx, sy - 4) && get(sx, sy - 4) === EMPTY) setCell(sx, sy - 4, LEAF);
+        if (inB(sx - 1, sy - 3) && get(sx - 1, sy - 3) === EMPTY) setCell(sx - 1, sy - 3, LEAF);
+        if (inB(sx + 1, sy - 3) && get(sx + 1, sy - 3) === EMPTY) setCell(sx + 1, sy - 3, LEAF);
+      } else if (stage === 4) {
+        colorGrid[I(sx, sy)] = rc(WOOD);
+        for (var dy = 1; dy <= 4; dy++)
+          if (inB(sx, sy - dy) && get(sx, sy - dy) === EMPTY) setCell(sx, sy - dy, WOOD);
+        var ty = sy - 4,
+          r = 1;
+        for (var ldy = -r; ldy <= r; ldy++)
+          for (var ldx = -r; ldx <= r; ldx++) {
+            if (ldx * ldx + ldy * ldy <= r * r + 0.5) {
+              var lx = sx + ldx,
+                ly = ty + ldy;
+              if (inB(lx, ly) && get(lx, ly) === EMPTY) setCell(lx, ly, LEAF);
+            }
+          }
+      } else if (stage === 5) {
+        colorGrid[I(sx, sy)] = rc(WOOD);
+        for (var dy = 1; dy <= 5; dy++)
+          if (inB(sx, sy - dy) && get(sx, sy - dy) === EMPTY) setCell(sx, sy - dy, WOOD);
+        var ty = sy - 5,
+          r = 2;
+        for (var ldy = -r; ldy <= r; ldy++)
+          for (var ldx = -r; ldx <= r; ldx++) {
+            if (ldx * ldx + ldy * ldy <= r * r + 1) {
+              var lx = sx + ldx,
+                ly = ty + ldy;
+              if (inB(lx, ly) && get(lx, ly) === EMPTY && Math.random() < 0.85) setCell(lx, ly, LEAF);
+            }
+          }
+      } else if (stage === 6) {
+        colorGrid[I(sx, sy)] = rc(WOOD);
+        for (var dy = 1; dy <= 7; dy++)
+          if (inB(sx, sy - dy) && get(sx, sy - dy) === EMPTY) setCell(sx, sy - dy, WOOD);
+        var ty = sy - 7,
+          r = 3;
+        for (var ldy = -r - 1; ldy <= r; ldy++)
+          for (var ldx = -r; ldx <= r; ldx++) {
+            var dist = ldx * ldx + (ldy < 0 ? ldy * ldy * 0.7 : ldy * ldy);
+            if (dist <= r * r + 1.5) {
+              var lx = sx + ldx,
+                ly = ty + ldy;
+              if (inB(lx, ly) && get(lx, ly) === EMPTY && Math.random() < 0.82) setCell(lx, ly, LEAF);
+            }
+          }
+      } else if (stage === 7) {
+        colorGrid[I(sx, sy)] = rc(WOOD);
+        for (var dy = 1; dy <= 9; dy++)
+          if (inB(sx, sy - dy) && get(sx, sy - dy) === EMPTY) setCell(sx, sy - dy, WOOD);
+        var ty = sy - 9,
+          r = 4;
+        for (var ldy = -r - 1; ldy <= r; ldy++)
+          for (var ldx = -r; ldx <= r; ldx++) {
+            var dist = ldx * ldx + (ldy < 0 ? ldy * ldy * 0.7 : ldy * ldy);
+            if (dist <= r * r + 2) {
+              var lx = sx + ldx,
+                ly = ty + ldy;
+              if (inB(lx, ly) && get(lx, ly) === EMPTY && Math.random() < 0.8) setCell(lx, ly, LEAF);
+            }
+          }
+      } else if (stage === 8) {
+        colorGrid[I(sx, sy)] = rc(WOOD);
+        var th = 12 + Math.floor(Math.random() * 3);
+        for (var dy = 1; dy <= th; dy++)
+          if (inB(sx, sy - dy) && get(sx, sy - dy) === EMPTY) setCell(sx, sy - dy, WOOD);
+        var ty = sy - th,
+          r = 5 + Math.floor(Math.random() * 2);
+        for (var ldy = -r - 2; ldy <= r; ldy++)
+          for (var ldx = -r; ldx <= r; ldx++) {
+            var dist = ldx * ldx + (ldy < 0 ? ldy * ldy * 0.65 : ldy * ldy);
+            if (dist <= r * r + 3) {
+              var lx = sx + ldx,
+                ly = ty + ldy;
+              if (inB(lx, ly) && get(lx, ly) === EMPTY && Math.random() < 0.78) setCell(lx, ly, LEAF);
+            }
+          }
+      }
+      growthStage[I(sx, sy)] = stage;
+      activeTreeOwner = 0;
+    }
+
+    function placeTree(cx, cy) {
+      if (!inB(cx, cy)) return;
+      var th = 5 + Math.floor(Math.random() * 5);
+      for (var dy = 0; dy < th; dy++)
+        if (get(cx, cy - dy) !== EMPTY) return;
+      for (var dy2 = 0; dy2 < th; dy2++) setCell(cx, cy - dy2, WOOD);
+      var ty = cy - th,
+        r = 3 + Math.floor(Math.random() * 2);
+      for (var ldy = -r - 1; ldy <= r; ldy++)
+        for (var ldx = -r; ldx <= r; ldx++) {
+          var dist = ldx * ldx + (ldy < 0 ? ldy * ldy * 0.7 : ldy * ldy);
+          if (dist <= r * r + 2) {
+            var lx = cx + ldx,
+              ly = ty + ldy;
+            if (inB(lx, ly) && get(lx, ly) === EMPTY && Math.random() < 0.82) setCell(lx, ly, LEAF);
+          }
+        }
+    }
+
+    function lightningDamage(x, y) {
+      var dirs = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+        [-1, -1],
+        [1, -1],
+        [-1, 1],
+        [1, 1]
+      ];
+      for (var d = 0; d < 8; d++) {
+        var nx = x + dirs[d][0],
+          ny = y + dirs[d][1];
+        if (!inB(nx, ny)) continue;
+        var nm = get(nx, ny);
+        if (nm === WOOD || nm === LEAF) {
+          if (Math.random() < 0.4) setCell(nx, ny, FIRE);
+          else if (Math.random() < 0.3) setCell(nx, ny, EMPTY);
+        } else if (nm === STONE) {
+          if (Math.random() < 0.15) setCell(nx, ny, GRAVEL);
+        } else if (nm === SAND || nm === DIRT || nm === SEED || nm === SAWDUST || nm === GRAVEL) {
+          if (Math.random() < 0.2) setCell(nx, ny, EMPTY);
+        } else if (nm === WATER) {
+          if (Math.random() < 0.3) setCell(nx, ny, STEAM);
+        } else if (nm === EMPTY) {
+          if (Math.random() < 0.05) setCell(nx, ny, FIRE);
+        }
+      }
+    }
+    var activeExplosions = [];
+
+    function explode(cx, cy, maxRadius) {
+      activeExplosions.push({
+        cx: cx,
+        cy: cy,
+        maxRadius: maxRadius,
+        currentRadius: 0,
+        speed: maxRadius <= 15 ? 5 : Math.min(Math.floor(maxRadius / 3), 30)
+      });
+    }
+
+    function expCell(px, py, ratio) {
+      if (!inB(px, py)) return;
+      var m = get(px, py);
+      if (m === EMPTY || m === CONVEYOR || m === GRINDER) return;
+      if (ratio < 0.4) {
+        if (m === TNT) {
+          explode(px, py, 10);
+          return;
+        }
+        if (m === NUKE) {
+          explode(px, py, 100);
+          return;
+        }
+        setCell(px, py, EMPTY);
+      } else if (ratio < 0.7) {
+        if (m === STONE) {
+          if (Math.random() < 0.6) setCell(px, py, EMPTY);
+          else if (Math.random() < 0.5) setCell(px, py, GRAVEL);
+        } else if (m === WOOD) {
+          if (Math.random() < 0.5) setCell(px, py, FIRE);
+          else setCell(px, py, EMPTY);
+        } else if (m === TNT) {
+          explode(px, py, 10);
+          return;
+        } else if (m === NUKE) {
+          explode(px, py, 100);
+          return;
+        } else setCell(px, py, EMPTY);
+        if (Math.random() < 0.5) setCell(px, py, FIRE);
+      } else {
+        if (m === TNT) {
+          explode(px, py, 10);
+          return;
+        }
+        if (m === NUKE) {
+          explode(px, py, 100);
+          return;
+        }
+        if (m === WOOD || m === LEAF || m === SAWDUST) {
+          if (Math.random() < 0.6) setCell(px, py, FIRE);
+          else if (Math.random() < 0.4) setCell(px, py, EMPTY);
+        } else if (m === STONE) {
+          if (Math.random() < 0.2) setCell(px, py, GRAVEL);
+          else if (Math.random() < 0.15) setCell(px, py, EMPTY);
+        } else if (m === WATER) {
+          if (Math.random() < 0.3) setCell(px, py, STEAM);
+        } else {
+          if (Math.random() < 0.4) setCell(px, py, EMPTY);
+        }
+        if (Math.random() < 0.3) setCell(px, py, FIRE);
+      }
+    }
+
+    function updateExplosions() {
+      for (var e = activeExplosions.length - 1; e >= 0; e--) {
+        var exp = activeExplosions[e];
+        for (var r = 0; r < exp.speed && exp.currentRadius < exp.maxRadius; r++) {
+          exp.currentRadius++;
+          var cr = exp.currentRadius;
+          var prevR = cr - 1;
+          var cr2 = cr * cr;
+          var prevR2 = prevR * prevR;
+          for (var dy = -cr; dy <= cr; dy++) {
+            var ady2 = dy * dy;
+            var maxDx2 = cr2 - ady2;
+            if (maxDx2 < 0) continue;
+            var minDx2 = prevR2 - ady2;
+            var lo = minDx2 > 0 ? Math.ceil(Math.sqrt(minDx2)) : 0;
+            var hi = Math.floor(Math.sqrt(maxDx2));
+            for (var dx = lo; dx <= hi; dx++) {
+              var dist = Math.sqrt(dx * dx + ady2);
+              var ratio = dist / exp.maxRadius;
+              expCell(exp.cx + dx, exp.cy + dy, ratio);
+              if (dx !== 0) expCell(exp.cx - dx, exp.cy + dy, ratio);
+            }
+          }
+        }
+        if (exp.currentRadius >= exp.maxRadius) {
+          var fc = Math.min(Math.floor(exp.maxRadius * 0.05), 3);
+          for (var f = 0; f < fc; f++) {
+            var fa = Math.random() * 6.2832,
+              fr = Math.random() * exp.maxRadius * 0.5;
+            var fx = Math.round(exp.cx + Math.cos(fa) * fr),
+              fy = Math.round(exp.cy + Math.sin(fa) * fr);
+            if (inB(fx, fy) && get(fx, fy) === EMPTY) {
+              if (Math.random() < 0.6) setCell(fx, fy, SMOKE);
+              else setCell(fx, fy, FIRE);
+            }
+          }
+          activeExplosions.splice(e, 1);
+        }
+      }
+    }
+
+    function updatePhysics() {
+      upd.fill(0);
+      var adjDirs = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1]
+      ];
+      for (var y = simY1 - 1; y >= simY0; y--) {
+        var ltr = (y + frameCount) & 1;
+        for (var i = 0; i < simX1 - simX0; i++) {
+          var x = ltr ? (simX0 + i) : (simX1 - 1 - i);
+          var ci = I(x, y);
+          if (upd[ci]) continue;
+          var mat = grid[ci];
+          if (mat === CONVEYOR) {
+            var dir = machineDir[ci];
+            var isVert = dir >= 2;
+            var isTopRow = isVert ? (machineLX[ci] === 0) : (machineLY[ci] === 0);
+            if (!isTopRow) continue;
+            var ax, ay;
+            if (isVert) {
+              ax = x - 1;
+              ay = y;
+            } else {
+              ax = x;
+              ay = y - 1;
+            }
+            if (!inB(ax, ay)) continue;
+            var above = get(ax, ay);
+            if (above === EMPTY || isMachine(above) || isSolid(above)) continue;
+            var cooldown = ((ax * 7 + ay * 13 + frameCount) % 3);
+            if (cooldown !== 0) continue;
+            var cdx = 0,
+              cdy = 0;
+            if (dir === 0) cdx = 1;
+            else if (dir === 1) cdx = -1;
+            else if (dir === 2) cdy = -1;
+            else cdy = 1;
+            var tx = ax + cdx,
+              ty = ay + cdy;
+            if (!inB(tx, ty)) continue;
+            if (get(tx, ty) === EMPTY) {
+              swap(ax, ay, tx, ty);
+              upd[I(tx, ty)] = 1;
+            }
+            continue;
+          }
+          if (mat === GRINDER) {
+            if (machineLY[ci] === 0) {
+              var gnx = x,
+                gny = y - 1;
+              if (inB(gnx, gny) && !upd[I(gnx, gny)]) {
+                var gm = grid[I(gnx, gny)];
+                var gpowder = 0;
+                if (gm === WOOD || gm === LEAF || gm === CHARCOAL) gpowder = SAWDUST;
+                else if (gm === STONE) gpowder = GRAVEL;
+                if (gpowder !== 0) {
+                  var gcol = rc(gpowder);
+                  grid[I(gnx, gny)] = EMPTY;
+                  colorGrid[I(gnx, gny)] = 0;
+                  var dropY = y + 1;
+                  while (dropY < WROWS && get(gnx, dropY) === GRINDER) dropY++;
+                  if (dropY < WROWS && get(gnx, dropY) === EMPTY) {
+                    grid[I(gnx, dropY)] = gpowder;
+                    colorGrid[I(gnx, dropY)] = gcol;
+                    lifetime[I(gnx, dropY)] = 0;
+                    upd[I(gnx, dropY)] = 1;
+                  }
+                  upd[I(gnx, gny)] = 1;
+                }
+              }
+            }
+            continue;
+          }
+          if (mat === LIGHTNING) {
+            lifetime[ci]--;
+            colorGrid[ci] = rc(LIGHTNING);
+            if (lifetime[ci] <= 0) setCell(x, y, EMPTY);
+            continue;
+          }
+          if (mat === GROWING) {
+            var gb = get(x, y + 1);
+            if (gb === DIRT || gb === STONE || gb === WOOD) {
+              lifetime[ci] += simSpeed;
+              if (treeMaxStage[ci] === 0) treeMaxStage[ci] = ((x * 2654435761 ^ y * 2246822519) >>> 0) % 100 < 10 ? 8 : 7;
+              var ms = treeMaxStage[ci],
+                cs = 0;
+              if (lifetime[ci] >= 6500 && ms >= 8) cs = 8;
+              else if (lifetime[ci] >= 4500) cs = Math.min(7, ms);
+              else if (lifetime[ci] >= 3000) cs = 6;
+              else if (lifetime[ci] >= 2000) cs = 5;
+              else if (lifetime[ci] >= 1300) cs = 4;
+              else if (lifetime[ci] >= 800) cs = 3;
+              else if (lifetime[ci] >= 400) cs = 2;
+              else if (lifetime[ci] >= 150) cs = 1;
+              if (cs > growthStage[ci]) growToStage(x, y, cs);
+            }
+            continue;
+          }
+          if (mat === EMPTY || mat === STONE || mat === WOOD || mat === LEAF || mat === CHARCOAL || mat === CONVEYOR || mat === GRINDER) continue;
+          if (mat === SEED) {
+            var sb = get(x, y + 1);
+            if (sb === DIRT || sb === STONE) {
+              grid[ci] = GROWING;
+              colorGrid[ci] = rc(GROWING);
+              lifetime[ci] = 0;
+              treeOwner[ci] = nextTreeID;
+              nextTreeID = (nextTreeID % 254) + 1;
+              continue;
+            }
+            if (tryFall(x, y, true)) {
+              upd[I(x, Math.min(y + 1, WROWS - 1))] = 1;
+            }
+            continue;
+          }
+          if (mat === FUSE) {
+            if (growthStage[ci] === 0) {
+              var fuseDirs = [
+                [-1, 0],
+                [1, 0],
+                [0, -1],
+                [0, 1]
+              ];
+              for (var fd = 0; fd < 4; fd++) {
+                var fnx = x + fuseDirs[fd][0],
+                  fny = y + fuseDirs[fd][1];
+                if (!inB(fnx, fny)) continue;
+                var fn = get(fnx, fny);
+                if (fn === FIRE || fn === SPARK || fn === LAVA) {
+                  growthStage[ci] = 1;
+                  lifetime[ci] = 4 + Math.floor(Math.random() * 4);
+                  break;
+                }
+              }
+            } else {
+              lifetime[ci]--;
+              var sparkC = 2 + Math.floor(Math.random() * 3);
+              for (var sci = 0; sci < sparkC; sci++) {
+                var spDirs = [
+                  [-1, 0],
+                  [1, 0],
+                  [0, -1],
+                  [0, 1],
+                  [-1, -1],
+                  [1, -1],
+                  [-1, 1],
+                  [1, 1]
+                ];
+                var sd = spDirs[Math.floor(Math.random() * spDirs.length)];
+                var spx = x + sd[0],
+                  spy = y + sd[1];
+                if (inB(spx, spy) && get(spx, spy) === EMPTY) {
+                  setCell(spx, spy, SPARK);
+                }
+              }
+              if (lifetime[ci] <= 0) {
+                var fuseDirs2 = [
+                  [-1, 0],
+                  [1, 0],
+                  [0, -1],
+                  [0, 1]
+                ];
+                for (var fd2 = 0; fd2 < 4; fd2++) {
+                  var fnx2 = x + fuseDirs2[fd2][0],
+                    fny2 = y + fuseDirs2[fd2][1];
+                  if (!inB(fnx2, fny2)) continue;
+                  var fn2 = get(fnx2, fny2);
+                  if (fn2 === FUSE && growthStage[I(fnx2, fny2)] === 0) {
+                    growthStage[I(fnx2, fny2)] = 1;
+                    lifetime[I(fnx2, fny2)] = 4 + Math.floor(Math.random() * 4);
+                  }
+                  if (fn2 === TNT || fn2 === NUKE) {
+                    explode(fnx2, fny2, fn2 === TNT ? 10 : 100);
+                  }
+                }
+                if (Math.random() < 0.4) setCell(x, y, FIRE);
+                else if (Math.random() < 0.5) setCell(x, y, SMOKE);
+                else setCell(x, y, CHARCOAL);
+              }
+            }
+            continue;
+          }
+          if (mat === SPARK) {
+            lifetime[ci]--;
+            if (lifetime[ci] <= 0) {
+              setCell(x, y, EMPTY);
+              continue;
+            }
+            var sparkDirs = [
+              [-1, 0],
+              [1, 0],
+              [0, -1],
+              [-1, -1],
+              [1, -1]
+            ];
+            var sd2 = sparkDirs[Math.floor(Math.random() * sparkDirs.length)];
+            var spx2 = x + sd2[0],
+              spy2 = y + sd2[1];
+            if (inB(spx2, spy2) && get(spx2, spy2) === EMPTY) {
+              swap(x, y, spx2, spy2);
+              upd[I(spx2, spy2)] = 1;
+            }
+            var sparkAdj = [
+              [-1, 0],
+              [1, 0],
+              [0, -1],
+              [0, 1]
+            ];
+            for (var sa = 0; sa < 4; sa++) {
+              var sax = x + sparkAdj[sa][0],
+                say = y + sparkAdj[sa][1];
+              if (!inB(sax, say)) continue;
+              var sam = get(sax, say);
+              if (sam === TNT) {
+                explode(sax, say, 10);
+                break;
+              }
+              if (sam === NUKE) {
+                explode(sax, say, 100);
+                break;
+              }
+              if (sam === FUSE && growthStage[I(sax, say)] === 0) {
+                growthStage[I(sax, say)] = 1;
+                lifetime[I(sax, say)] = 4 + Math.floor(Math.random() * 4);
+                break;
+              }
+            }
+            continue;
+          }
+          if (mat === TNT || mat === NUKE) {
+            var exploded = false;
+            var trigDirs = [
+              [-1, 0],
+              [1, 0],
+              [0, -1],
+              [0, 1],
+              [-1, -1],
+              [1, -1],
+              [-1, 1],
+              [1, 1]
+            ];
+            for (var td = 0; td < 8; td++) {
+              var tnx = x + trigDirs[td][0],
+                tny = y + trigDirs[td][1];
+              if (!inB(tnx, tny)) continue;
+              var tn = get(tnx, tny);
+              if (tn === FIRE || tn === LAVA || tn === LIGHTNING || tn === SPARK) {
+                explode(x, y, mat === TNT ? 10 : 100);
+                exploded = true;
+                break;
+              }
+            }
+            continue;
+          }
+          if (mat === SAND || mat === SAWDUST || mat === GRAVEL) {
+            if (tryFall(x, y, true)) {
+              upd[I(x, Math.min(y + 1, WROWS - 1))] = 1;
+            }
+            continue;
+          }
+          if (mat === DIRT) {
+            if (y + 1 < WROWS) {
+              var db = get(x, y + 1);
+              if (db === EMPTY) {
+                swap(x, y, x, y + 1);
+                upd[I(x, y + 1)] = 1;
+              } else if ((db === WATER || db === LAVA || db === STEAM) && y > 0) {
+                var dabv = get(x, y - 1);
+                if (dabv === EMPTY || dabv === WATER || dabv === LAVA || dabv === STEAM || dabv === SMOKE) {
+                  swap(x, y, x, y + 1);
+                  upd[I(x, y + 1)] = 1;
+                }
+              }
+            }
+            continue;
+          }
+          if (mat === WATER) {
+            for (var wd = 0; wd < 4; wd++) {
+              var wnx = x + adjDirs[wd][0],
+                wny = y + adjDirs[wd][1];
+              if (!inB(wnx, wny)) continue;
+              var wn = get(wnx, wny);
+              if (wn === FIRE) {
+                setCell(wnx, wny, EMPTY);
+                setCell(x, y, STEAM);
+                break;
+              }
+              if (wn === LAVA) {
+                setCell(x, y, STEAM);
+                setCell(wnx, wny, STONE);
+                break;
+              }
+            }
+            if (grid[ci] !== WATER) continue;
+            if (y + 1 < WROWS && get(x, y + 1) === EMPTY) {
+              swap(x, y, x, y + 1);
+              upd[I(x, y + 1)] = 1;
+              continue;
+            }
+            if (y + 1 < WROWS) {
+              var wdir = Math.random() < 0.5 ? -1 : 1;
+              var slid = false;
+              for (var d = 0; d < 2; d++) {
+                var wdd = d === 0 ? wdir : -wdir;
+                var wnx2 = x + wdd;
+                if (inB(wnx2, y + 1) && get(wnx2, y + 1) === EMPTY) {
+                  swap(x, y, wnx2, y + 1);
+                  upd[I(wnx2, y + 1)] = 1;
+                  slid = true;
+                  break;
+                }
+              }
+              if (slid) continue;
+            }
+            var wsd = Math.random() < 0.5 ? -1 : 1;
+            for (var d2 = 0; d2 < 2; d2++) {
+              var wsdd = d2 === 0 ? wsd : -wsd;
+              var wsnx = x + wsdd;
+              if (inB(wsnx, y) && get(wsnx, y) === EMPTY) {
+                swap(x, y, wsnx, y);
+                upd[I(wsnx, y)] = 1;
+                break;
+              }
+            }
+            continue;
+          }
+          if (mat === STEAM) {
+            lifetime[ci]--;
+            if (lifetime[ci] <= 0) {
+              setCell(x, y, WATER);
+              continue;
+            }
+            if (y > 0) {
+              if (get(x, y - 1) === EMPTY) {
+                if (Math.random() < 0.8) {
+                  swap(x, y, x, y - 1);
+                  upd[I(x, y - 1)] = 1;
+                }
+              } else if (Math.random() < 0.5) {
+                var sd2 = Math.random() < 0.5 ? -1 : 1;
+                for (var sd3 = 0; sd3 < 2; sd3++) {
+                  var sdd2 = sd3 === 0 ? sd2 : -sd2;
+                  if (inB(x + sdd2, y - 1) && get(x + sdd2, y - 1) === EMPTY) {
+                    swap(x, y, x + sdd2, y - 1);
+                    upd[I(x + sdd2, y - 1)] = 1;
+                    break;
+                  }
+                }
+              }
+              if (grid[ci] === STEAM && Math.random() < 0.3) {
+                var ssd = Math.random() < 0.5 ? -1 : 1;
+                if (inB(x + ssd, y) && get(x + ssd, y) === EMPTY && !upd[I(x + ssd, y)]) {
+                  swap(x, y, x + ssd, y);
+                  upd[I(x + ssd, y)] = 1;
+                }
+              }
+            } else {
+              if (Math.random() < 0.05) setCell(x, y, WATER);
+            }
+            if (grid[ci] === STEAM && lifetime[ci] < 30 && Math.random() < 0.02) setCell(x, y, WATER);
+            continue;
+          }
+          if (mat === FIRE) {
+            lifetime[ci]--;
+            if (lifetime[ci] <= 0) {
+              if (Math.random() < 0.6) setCell(x, y, SMOKE);
+              else setCell(x, y, EMPTY);
+              continue;
+            }
+            for (var fd = 0; fd < 4; fd++) {
+              var fnx = x + adjDirs[fd][0],
+                fny = y + adjDirs[fd][1];
+              if (!inB(fnx, fny)) continue;
+              var fn = get(fnx, fny);
+              if (fn === WOOD) {
+                var roll = Math.random();
+                if (roll < 0.015) setCell(fnx, fny, CHARCOAL);
+                else if (roll < 0.03) setCell(fnx, fny, FIRE);
+              } else if (fn === SAWDUST) {
+                if (Math.random() < 0.12) {
+                  var fsi = I(fnx, fny);
+                  grid[fsi] = FIRE;
+                  colorGrid[fsi] = rc(FIRE);
+                  lifetime[fsi] = 8 + Math.floor(Math.random() * 12);
+                } else if (Math.random() < 0.08) setCell(fnx, fny, SMOKE);
+                else if (Math.random() < 0.04) setCell(fnx, fny, EMPTY);
+              } else if (fn === LEAF) {
+                var roll2 = Math.random();
+                if (roll2 < 0.01) setCell(fnx, fny, CHARCOAL);
+                else if (roll2 < 0.025) setCell(fnx, fny, FIRE);
+              } else if (fn === WATER) {
+                setCell(fnx, fny, STEAM);
+                setCell(x, y, EMPTY);
+                break;
+              }
+            }
+            if (grid[ci] !== FIRE) continue;
+            if (y > 0) {
+              if (get(x, y - 1) === EMPTY) {
+                if (Math.random() < 0.75) {
+                  swap(x, y, x, y - 1);
+                  upd[I(x, y - 1)] = 1;
+                }
+              } else {
+                var fd2 = Math.random() < 0.5 ? -1 : 1;
+                if (inB(x + fd2, y - 1) && get(x + fd2, y - 1) === EMPTY && Math.random() < 0.5) {
+                  swap(x, y, x + fd2, y - 1);
+                  upd[I(x + fd2, y - 1)] = 1;
+                } else {
+                  var fd3 = fd2 === 1 ? -1 : 1;
+                  if (inB(x + fd3, y - 1) && get(x + fd3, y - 1) === EMPTY && Math.random() < 0.3) {
+                    swap(x, y, x + fd3, y - 1);
+                    upd[I(x + fd3, y - 1)] = 1;
+                  }
+                }
+              }
+            }
+            if (grid[ci] === FIRE && Math.random() < 0.4) colorGrid[ci] = rc(FIRE);
+            continue;
+          }
+          if (mat === SMOKE) {
+            lifetime[ci]--;
+            if (lifetime[ci] <= 0) {
+              if (Math.random() < 0.15) setCell(x, y, WATER);
+              else setCell(x, y, EMPTY);
+              continue;
+            }
+            if (y > 0 && Math.random() < 0.85) {
+              if (get(x, y - 1) === EMPTY) {
+                swap(x, y, x, y - 1);
+                upd[I(x, y - 1)] = 1;
+              } else {
+                var smokesd = Math.random() < 0.5 ? -1 : 1;
+                for (var smokesd3 = 0; smokesd3 < 2; smokesd3++) {
+                  var smokesdd2 = smokesd3 === 0 ? smokesd : -smokesd;
+                  if (inB(x + smokesdd2, y - 1) && get(x + smokesdd2, y - 1) === EMPTY) {
+                    swap(x, y, x + smokesdd2, y - 1);
+                    upd[I(x + smokesdd2, y - 1)] = 1;
+                    break;
+                  }
+                }
+              }
+              if (grid[ci] === SMOKE && Math.random() < 0.4) {
+                var smokessd = Math.random() < 0.5 ? -1 : 1;
+                if (inB(x + smokessd, y) && get(x + smokessd, y) === EMPTY && !upd[I(x + smokessd, y)]) {
+                  swap(x, y, x + smokessd, y);
+                  upd[I(x + smokessd, y)] = 1;
+                }
+              }
+            }
+            continue;
+          }
+          if (mat === LAVA) {
+            var lavaMoved = false;
+            if (y + 1 < WROWS) {
+              var lb = get(x, y + 1);
+              if (lb === EMPTY) {
+                swap(x, y, x, y + 1);
+                upd[I(x, y + 1)] = 1;
+                lavaMoved = true;
+              } else if (lb === WATER) {
+                setCell(x, y + 1, STONE);
+                setCell(x, y, STEAM);
+                lavaMoved = true;
+              }
+              if (!lavaMoved) {
+                var ld = Math.random() < 0.5 ? -1 : 1;
+                for (var li = 0; li < 2 && !lavaMoved; li++) {
+                  var ldd = li === 0 ? ld : -ld;
+                  var lnx = x + ldd;
+                  if (inB(lnx, y + 1)) {
+                    var lnb = get(lnx, y + 1);
+                    if (lnb === EMPTY) {
+                      swap(x, y, lnx, y + 1);
+                      upd[I(lnx, y + 1)] = 1;
+                      lavaMoved = true;
+                    } else if (lnb === WATER) {
+                      setCell(lnx, y + 1, STONE);
+                      setCell(x, y, STEAM);
+                      lavaMoved = true;
+                    }
+                  }
+                }
+                if (!lavaMoved) {
+                  var hs = Math.random() < 0.5 ? -1 : 1;
+                  for (var hi = 0; hi < 2 && !lavaMoved; hi++) {
+                    var hdd = hi === 0 ? hs : -hs;
+                    var hnx = x + hdd;
+                    if (inB(hnx, y) && get(hnx, y) === EMPTY) {
+                      swap(x, y, hnx, y);
+                      upd[I(hnx, y)] = 1;
+                      lavaMoved = true;
+                    }
+                  }
+                }
+              }
+            } else {
+              var hs2 = Math.random() < 0.5 ? -1 : 1;
+              for (var hi2 = 0; hi2 < 2 && !lavaMoved; hi2++) {
+                var hdd2 = hi2 === 0 ? hs2 : -hs2;
+                var hnx2 = x + hdd2;
+                if (inB(hnx2, y) && get(hnx2, y) === EMPTY) {
+                  swap(x, y, hnx2, y);
+                  upd[I(hnx2, y)] = 1;
+                  lavaMoved = true;
+                }
+              }
+            }
+            if (!lavaMoved) {
+              for (var bd = 0; bd < 4; bd++) {
+                var bnx = x + adjDirs[bd][0],
+                  bny = y + adjDirs[bd][1];
+                if (!inB(bnx, bny)) continue;
+                var bn = get(bnx, bny);
+                if (bn === WOOD) {
+                  var broll = Math.random();
+                  if (broll < 0.012) setCell(bnx, bny, CHARCOAL);
+                  else if (broll < 0.024) setCell(bnx, bny, FIRE);
+                } else if (bn === SAWDUST) {
+                  if (Math.random() < 0.15) {
+                    var llsi = I(bnx, bny);
+                    grid[llsi] = FIRE;
+                    colorGrid[llsi] = rc(FIRE);
+                    lifetime[llsi] = 8 + Math.floor(Math.random() * 12);
+                  } else if (Math.random() < 0.1) setCell(bnx, bny, SMOKE);
+                } else if (bn === LEAF) {
+                  var broll2 = Math.random();
+                  if (broll2 < 0.008) setCell(bnx, bny, CHARCOAL);
+                  else if (broll2 < 0.02) setCell(bnx, bny, FIRE);
+                }
+              }
+              if (Math.random() < 0.12) colorGrid[ci] = rc(LAVA);
+            }
+            continue;
+          }
+        }
+      }
+    }
+
+    function placeMaterial(gx, gy) {
+      if (currentMat === CONVEYOR) {
+        var cw = CONV_W,
+          ch = CONV_H;
+        if (currentConveyorDir >= 2) {
+          cw = CONV_H;
+          ch = CONV_W;
+        }
+        var hasOverlap = false;
+        for (var dy = 0; dy < ch && !hasOverlap; dy++)
+          for (var dx = 0; dx < cw && !hasOverlap; dx++) {
+            var px = gx - Math.floor(cw / 2) + dx;
+            var py = gy - Math.floor(ch / 2) + dy;
+            if (inB(px, py) && isMachine(get(px, py))) hasOverlap = true;
+          }
+        if (hasOverlap) return;
+        for (var dy = 0; dy < ch; dy++) {
+          for (var dx = 0; dx < cw; dx++) {
+            var px = gx - Math.floor(cw / 2) + dx;
+            var py = gy - Math.floor(ch / 2) + dy;
+            if (inB(px, py)) {
+              setCell(px, py, CONVEYOR);
+              var pi = I(px, py);
+              machineLX[pi] = dx;
+              machineLY[pi] = dy;
+            }
+          }
+        }
+        return;
+      }
+      if (currentMat === GRINDER) {
+        var hasOverlap = false;
+        for (var dy = 0; dy < GRIND_H && !hasOverlap; dy++)
+          for (var dx = 0; dx < GRIND_W && !hasOverlap; dx++) {
+            var px = gx - Math.floor(GRIND_W / 2) + dx;
+            var py = gy - Math.floor(GRIND_H / 2) + dy;
+            if (inB(px, py) && isMachine(get(px, py))) hasOverlap = true;
+          }
+        if (hasOverlap) return;
+        for (var dy = 0; dy < GRIND_H; dy++) {
+          for (var dx = 0; dx < GRIND_W; dx++) {
+            var px = gx - Math.floor(GRIND_W / 2) + dx;
+            var py = gy - Math.floor(GRIND_H / 2) + dy;
+            if (inB(px, py)) {
+              setCell(px, py, GRINDER);
+              var pi = I(px, py);
+              machineLX[pi] = dx;
+              machineLY[pi] = dy;
+            }
+          }
+        }
+        return;
+      }
+      if (currentMat === LIGHTNING) {
+        var numBolts = Math.max(1, brushRadius);
+        for (var b = 0; b < numBolts; b++) {
+          var bx = gx + Math.floor((Math.random() - 0.5) * brushRadius * 2);
+          for (var by = 0; by <= gy; by++) {
+            if (inB(bx, by) && !isMachine(get(bx, by))) {
+              setCell(bx, by, LIGHTNING);
+              lightningDamage(bx, by);
+            }
+            if (by < gy) bx += Math.floor(Math.random() * 3) - 1;
+          }
+        }
+        return;
+      }
+      var r = brushRadius;
+      for (var dy = -r; dy <= r; dy++)
+        for (var dx = -r; dx <= r; dx++) {
+          if (dx * dx + dy * dy > r * r) continue;
+          var px = gx + dx,
+            py = gy + dy;
+          if (!inB(px, py)) continue;
+          if (currentMat === EMPTY) {
+            if (get(px, py) !== EMPTY) setCell(px, py, EMPTY);
+          } else {
+            var ex = get(px, py);
+            if (ex === EMPTY || (currentMat !== WATER && currentMat !== LAVA && currentMat !== STEAM && currentMat !== SMOKE && (ex === WATER || ex === LAVA || ex === STEAM))) {
+              if (Math.random() < 0.65) setCell(px, py, currentMat);
+            }
+          }
+        }
+    }
+
+    function placeLine(x0, y0, x1, y1) {
+      if (x0 < 0 || y0 < 0) {
+        placeMaterial(x1, y1);
+        return;
+      }
+      var dx = Math.abs(x1 - x0),
+        dy = Math.abs(y1 - y0);
+      var sx = x0 < x1 ? 1 : -1,
+        sy = y0 < y1 ? 1 : -1;
+      var err = dx - dy,
+        cx = x0,
+        cy = y0;
+      while (true) {
+        placeMaterial(cx, cy);
+        if (cx === x1 && cy === y1) break;
+        var e2 = 2 * err;
+        if (e2 > -dy) {
+          err -= dy;
+          cx += sx;
+        }
+        if (e2 < dx) {
+          err += dx;
+          cy += sy;
+        }
+      }
+    }
+    var imageData = ctx.createImageData(canvas.width, canvas.height);
+    var pixels = imageData.data;
+
+    function render() {
+      var bgColor = new Uint32Array(pixels.buffer);
+      var bgVal = (255 << 24) | (16 << 16) | (12 << 8) | 12;
+      bgColor.fill(bgVal);
+
+      function hl(svx, svy) {
+        if (svx < 0 || svx >= visibleCols || svy < 0 || svy >= visibleRows) return;
+        var hsx = svx * ePix,
+          hsy = svy * ePix;
+        for (var hpy = 0; hpy < ePix; hpy++) {
+          var hro = ((hsy + hpy) * canvas.width + hsx) * 4;
+          for (var hpx = 0; hpx < ePix; hpx++) {
+            var ho = hro + hpx * 4;
+            pixels[ho] = Math.min(255, pixels[ho] + 45);
+            pixels[ho + 1] = Math.min(255, pixels[ho + 1] + 45);
+            pixels[ho + 2] = Math.min(255, pixels[ho + 2] + 45);
+          }
+        }
+      }
+
+      function hlBright(svx, svy) {
+        if (svx < 0 || svx >= visibleCols || svy < 0 || svy >= visibleRows) return;
+        var hsx = svx * ePix,
+          hsy = svy * ePix;
+        for (var hpy = 0; hpy < ePix; hpy++) {
+          var hro = ((hsy + hpy) * canvas.width + hsx) * 4;
+          for (var hpx = 0; hpx < ePix; hpx++) {
+            var ho = hro + hpx * 4;
+            pixels[ho] = Math.min(255, pixels[ho] + 60);
+            pixels[ho + 1] = Math.min(255, pixels[ho + 1] + 60);
+            pixels[ho + 2] = Math.min(255, pixels[ho + 2] + 60);
+          }
+        }
+      }
+      for (var vy = 0; vy < visibleRows; vy++) {
+        var wy = viewY + vy;
+        if (wy < 0 || wy >= WROWS) continue;
+        for (var vx = 0; vx < visibleCols; vx++) {
+          var wx = viewX + vx;
+          if (wx < 0 || wx >= WCOLS) continue;
+          var ci = I(wx, wy);
+          var mat = grid[ci];
+          var c = colorGrid[ci];
+          if (c === 0 && mat === EMPTY) continue;
+          var sx = vx * ePix,
+            sy = vy * ePix;
+          if (mat === CONVEYOR) {
+            var dir = machineDir[ci],
+              lx = machineLX[ci],
+              ly = machineLY[ci];
+            var isVert = dir >= 2;
+            var cW = isVert ? CONV_H : CONV_W;
+            var cH = isVert ? CONV_W : CONV_H;
+            for (var py = 0; py < ePix; py++) {
+              var ro = ((sy + py) * canvas.width + sx) * 4;
+              for (var px = 0; px < ePix; px++) {
+                var o = ro + px * 4;
+                var onFrame = (ly === 0 && py === 0) || (ly === cH - 1 && py === ePix - 1) || (lx === 0 && px === 0) || (lx === cW - 1 && px === ePix - 1);
+                if (onFrame) {
+                  pixels[o] = 200;
+                  pixels[o + 1] = 180;
+                  pixels[o + 2] = 140;
+                } else {
+                  var phase;
+                  if (dir === 0) phase = wx * ePix + px + frameCount;
+                  else if (dir === 1) phase = wx * ePix + px - frameCount;
+                  else if (dir === 2) phase = wy * ePix + py - frameCount;
+                  else phase = wy * ePix + py + frameCount;
+                  var sv = ((phase % (ePix * 2)) + ePix * 4) % (ePix * 2) < ePix;
+                  if (sv) {
+                    pixels[o] = 139;
+                    pixels[o + 1] = 105;
+                    pixels[o + 2] = 60;
+                  } else {
+                    pixels[o] = 80;
+                    pixels[o + 1] = 55;
+                    pixels[o + 2] = 30;
+                  }
+                }
+              }
+            }
+          } else if (mat === GRINDER) {
+            var lx = machineLX[ci],
+              ly = machineLY[ci];
+            for (var py = 0; py < ePix; py++) {
+              var ro = ((sy + py) * canvas.width + sx) * 4;
+              for (var px = 0; px < ePix; px++) {
+                var o = ro + px * 4;
+                var onFrame = (ly === 0 && py === 0) || (ly === GRIND_H - 1 && py === ePix - 1) || (lx === 0 && px === 0) || (lx === GRIND_W - 1 && px === ePix - 1);
+                if (onFrame) {
+                  pixels[o] = 180;
+                  pixels[o + 1] = 180;
+                  pixels[o + 2] = 180;
+                } else {
+                  var gPhase = wx * ePix + px + frameCount * 2;
+                  var gs = ((gPhase % (ePix * 2)) + ePix * 4) % (ePix * 2) < ePix;
+                  if (gs) {
+                    pixels[o] = 110;
+                    pixels[o + 1] = 110;
+                    pixels[o + 2] = 110;
+                  } else {
+                    pixels[o] = 35;
+                    pixels[o + 1] = 35;
+                    pixels[o + 2] = 35;
+                  }
+                }
+              }
+            }
+          } else {
+            if (c === 0) continue;
+            var cr = c & 0xFF,
+              cg = (c >> 8) & 0xFF,
+              cb = (c >> 16) & 0xFF;
+            if (mat === WATER || mat === LAVA || mat === STEAM) {
+              var wv = Math.sin((wx + frameCount * 0.08) * 0.7 + wy * 0.5) * 6 | 0;
+              cr = Math.max(0, Math.min(255, cr + wv));
+              cg = Math.max(0, Math.min(255, cg + wv));
+              cb = Math.max(0, Math.min(255, cb + wv));
+            }
+            for (var py = 0; py < ePix; py++) {
+              var ro = ((sy + py) * canvas.width + sx) * 4;
+              for (var px = 0; px < ePix; px++) {
+                var o = ro + px * 4;
+                pixels[o] = cr;
+                pixels[o + 1] = cg;
+                pixels[o + 2] = cb;
+              }
+            }
+          }
+        }
+      }
+      for (var si = 0; si < selectedCells.length; si++) {
+        var sc = selectedCells[si];
+        if (grid[I(sc.x, sc.y)] === EMPTY) continue;
+        var svx = sc.x - viewX,
+          svy = sc.y - viewY;
+        if (svx < 0 || svx >= visibleCols || svy < 0 || svy >= visibleRows) continue;
+        var ssx = svx * ePix,
+          ssy = svy * ePix;
+        for (var spy = 0; spy < ePix; spy++) {
+          for (var spx = 0; spx < ePix; spx++) {
+            var isBord = spy === 0 || spy === ePix - 1 || spx === 0 || spx === ePix - 1;
+            if (isBord) {
+              var so = ((ssy + spy) * canvas.width + ssx + spx) * 4;
+              pixels[so] = 255;
+              pixels[so + 1] = 220;
+              pixels[so + 2] = 0;
+            }
+          }
+        }
+      }
+      if (boxSelecting) {
+        var bsx0 = Math.min(boxStartX, boxEndX) - viewX,
+          bsy0 = Math.min(boxStartY, boxEndY) - viewY;
+        var bsx1 = Math.max(boxStartX, boxEndX) - viewX,
+          bsy1 = Math.max(boxStartY, boxEndY) - viewY;
+        for (var bby = bsy0; bby <= bsy1; bby++) {
+          for (var bbx = bsx0; bbx <= bsx1; bbx++) {
+            if (bby < 0 || bby >= visibleRows || bbx < 0 || bbx >= visibleCols) continue;
+            var isEdge2 = bby === bsy0 || bby === bsy1 || bbx === bsx0 || bbx === bsx1;
+            if (isEdge2) {
+              var bpx2 = bbx * ePix,
+                bpy2 = bby * ePix;
+              for (var epy = 0; epy < ePix; epy++) {
+                for (var epx = 0; epx < ePix; epx++) {
+                  var eo = ((bpy2 + epy) * canvas.width + bpx2 + epx) * 4;
+                  pixels[eo] = 255;
+                  pixels[eo + 1] = 255;
+                  pixels[eo + 2] = 0;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (shiftLineActive) {
+        var sldx = Math.abs(shiftLineEndX - shiftLineStartX),
+          sldy = Math.abs(shiftLineEndY - shiftLineStartY);
+        var slsx = shiftLineStartX < shiftLineEndX ? 1 : -1,
+          slsy = shiftLineStartY < shiftLineEndY ? 1 : -1;
+        var slerr = sldx - sldy,
+          slcx = shiftLineStartX,
+          slcy = shiftLineStartY;
+        while (true) {
+          var sbr = brushRadius;
+          if (currentMat !== CONVEYOR && currentMat !== GRINDER) {
+            for (var sdy = -sbr; sdy <= sbr; sdy++)
+              for (var sdx = -sbr; sdx <= sbr; sdx++) {
+                if (sdx * sdx + sdy * sdy > sbr * sbr) continue;
+                hlBright(slcx + sdx - viewX, slcy + sdy - viewY);
+              }
+          } else {
+            hlBright(slcx - viewX, slcy - viewY);
+          }
+          if (slcx === shiftLineEndX && slcy === shiftLineEndY) break;
+          var sle2 = 2 * slerr;
+          if (sle2 > -sldy) {
+            slerr -= sldy;
+            slcx += slsx;
+          }
+          if (sle2 < sldx) {
+            slerr += sldx;
+            slcy += slsy;
+          }
+        }
+        if (currentMat === CONVEYOR) {
+          var hcW = currentConveyorDir >= 2 ? CONV_H : CONV_W;
+          var hcH = currentConveyorDir >= 2 ? CONV_W : CONV_H;
+          for (var cdy = 0; cdy < hcH; cdy++)
+            for (var cdx = 0; cdx < hcW; cdx++)
+              hl(shiftLineEndX - Math.floor(hcW / 2) + cdx - viewX, shiftLineEndY - Math.floor(hcH / 2) + cdy - viewY);
+        } else if (currentMat === GRINDER) {
+          for (var gdy = 0; gdy < GRIND_H; gdy++)
+            for (var gdx = 0; gdx < GRIND_W; gdx++)
+              hlBright(shiftLineEndX - Math.floor(GRIND_W / 2) + gdx - viewX, shiftLineEndY - Math.floor(GRIND_H / 2) + gdy - viewY);
+        }
+      } else if (mouseWorldX >= 0 && mouseWorldY >= 0 && !isPanning && currentCat !== 'select') {
+        if (currentMat === CONVEYOR) {
+          var scW = currentConveyorDir >= 2 ? CONV_H : CONV_W;
+          var scH = currentConveyorDir >= 2 ? CONV_W : CONV_H;
+          for (var cdy = 0; cdy < scH; cdy++)
+            for (var cdx = 0; cdx < scW; cdx++)
+              hlBright(mouseWorldX - Math.floor(scW / 2) + cdx - viewX, mouseWorldY - Math.floor(scH / 2) + cdy - viewY);
+        } else if (currentMat === GRINDER) {
+          for (var gdy = 0; gdy < GRIND_H; gdy++)
+            for (var gdx = 0; gdx < GRIND_W; gdx++)
+              hl(mouseWorldX - Math.floor(GRIND_W / 2) + gdx - viewX, mouseWorldY - Math.floor(GRIND_H / 2) + gdy - viewY);
+        } else {
+          var br = brushRadius;
+          for (var bdy = -br; bdy <= br; bdy++)
+            for (var bdx = -br; bdx <= br; bdx++) {
+              if (bdx * bdx + bdy * bdy > br * br) continue;
+              hl(mouseWorldX + bdx - viewX, mouseWorldY + bdy - viewY);
+            }
+        }
+      }
+      var mmMaxW = Math.min(150, canvas.width - 12);
+      if (mmMaxW >= 40 && WCOLS > 0 && WROWS > 0) {
+        var mmH = Math.round(mmMaxW * WROWS / WCOLS);
+        mmH = Math.max(30, Math.min(120, mmH));
+        var mmX = canvas.width - mmMaxW - 6,
+          mmY = 6;
+        var mmSX = WCOLS / mmMaxW,
+          mmSY = WROWS / mmH;
+        for (var my = 0; my < mmH; my++) {
+          for (var mx = 0; mx < mmMaxW; mx++) {
+            var mwx = Math.floor(mx * mmSX),
+              mwy = Math.floor(my * mmSY);
+            var mc = (inB(mwx, mwy)) ? colorGrid[I(mwx, mwy)] : 0;
+            var mo = ((mmY + my) * canvas.width + mmX + mx) * 4;
+            if (mc) {
+              pixels[mo] = mc & 0xFF;
+              pixels[mo + 1] = (mc >> 8) & 0xFF;
+              pixels[mo + 2] = (mc >> 16) & 0xFF;
+            } else {
+              pixels[mo] = 20;
+              pixels[mo + 1] = 20;
+              pixels[mo + 2] = 24;
+            }
+          }
+        }
+        for (var mb = 0; mb < mmMaxW; mb++) {
+          var mto = (mmY * canvas.width + mmX + mb) * 4;
+          pixels[mto] = 80;
+          pixels[mto + 1] = 80;
+          pixels[mto + 2] = 85;
+          var mbo = ((mmY + mmH - 1) * canvas.width + mmX + mb) * 4;
+          pixels[mbo] = 80;
+          pixels[mbo + 1] = 80;
+          pixels[mbo + 2] = 85;
+        }
+        for (var ml = 0; ml < mmH; ml++) {
+          var mlo = ((mmY + ml) * canvas.width + mmX) * 4;
+          pixels[mlo] = 80;
+          pixels[mlo + 1] = 80;
+          pixels[mlo + 2] = 85;
+          var mro = ((mmY + ml) * canvas.width + mmX + mmMaxW - 1) * 4;
+          pixels[mro] = 80;
+          pixels[mro + 1] = 80;
+          pixels[mro + 2] = 85;
+        }
+        var vrX = Math.floor(viewX / mmSX),
+          vrY = Math.floor(viewY / mmSY);
+        var vrW = Math.max(1, Math.ceil(visibleCols / mmSX)),
+          vrH = Math.max(1, Math.ceil(visibleRows / mmSY));
+        for (var vry = vrY; vry < vrY + vrH && vry < mmH; vry++) {
+          for (var vrx = vrX; vrx < vrX + vrW && vrx < mmMaxW; vrx++) {
+            if (vrx < 0 || vry < 0) continue;
+            var isVEdge = vry === vrY || vry === vrY + vrH - 1 || vrx === vrX || vrx === vrX + vrW - 1;
+            var vo = ((mmY + vry) * canvas.width + mmX + vrx) * 4;
+            if (isVEdge) {
+              pixels[vo] = 255;
+              pixels[vo + 1] = 255;
+              pixels[vo + 2] = 255;
+            } else {
+              pixels[vo] = Math.min(255, pixels[vo] + 40);
+              pixels[vo + 1] = Math.min(255, pixels[vo + 1] + 40);
+              pixels[vo + 2] = Math.min(255, pixels[vo + 2] + 40);
+            }
+          }
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+    }
+    canvas.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
+        isPanning = true;
+        panStartSX = e.clientX;
+        panStartSY = e.clientY;
+        panStartVX = viewX;
+        panStartVY = viewY;
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+      if (currentCat === 'select') {
+        updateMousePos(e);
+        var clickedMat = get(mouseWorldX, mouseWorldY);
+        if (isMachine(clickedMat)) {
+          if (!e.shiftKey) clearSelection();
+          var cells = findMachine(mouseWorldX, mouseWorldY);
+          cells.forEach(function(c) {
+            if (!selectedSet.has(I(c.x, c.y))) {
+              selectedCells.push(c);
+              selectedSet.add(I(c.x, c.y));
+            }
+          });
+          updateSelectUI();
+        } else {
+          if (!e.shiftKey) clearSelection();
+          boxSelecting = true;
+          boxStartX = mouseWorldX;
+          boxStartY = mouseWorldY;
+          boxEndX = mouseWorldX;
+          boxEndY = mouseWorldY;
+        }
+        return;
+      }
+      if (e.shiftKey && (currentCat === 'erase' || currentCat === 'move')) {
+        isPanning = true;
+        panStartSX = e.clientX;
+        panStartSY = e.clientY;
+        panStartVX = viewX;
+        panStartVY = viewY;
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+      if (e.shiftKey && e.button === 0) {
+        updateMousePos(e);
+        shiftLineStartX = mouseWorldX;
+        shiftLineStartY = mouseWorldY;
+        shiftLineEndX = mouseWorldX;
+        shiftLineEndY = mouseWorldY;
+        shiftLineActive = true;
+        return;
+      }
+      if (e.button === 2) mouseRight = true;
+      else mouseDown = true;
+      updateMousePos(e);
+      prevWorldX = mouseWorldX;
+      prevWorldY = mouseWorldY;
+      if (mouseDown) placeMaterial(mouseWorldX, mouseWorldY);
+      if (mouseRight) {
+        var pm = currentMat;
+        currentMat = EMPTY;
+        placeMaterial(mouseWorldX, mouseWorldY);
+        currentMat = pm;
+      }
+      isDrawingSolids = mouseDown && isSolid(currentMat);
+    });
+    canvas.addEventListener('mouseup', function(e) {
+      if (isPanning) {
+        isPanning = false;
+        canvas.style.cursor = currentCat === 'move' || currentCat === 'select' ? 'grab' : 'crosshair';
+        return;
+      }
+      if (boxSelecting) {
+        boxSelecting = false;
+        var bbx0 = Math.min(boxStartX, boxEndX),
+          bbx1 = Math.max(boxStartX, boxEndX);
+        var bby0 = Math.min(boxStartY, boxEndY),
+          bby1 = Math.max(boxStartY, boxEndY);
+        if (bbx1 - bbx0 > 1 || bby1 - bby0 > 1) {
+          for (var fsx = bbx0; fsx <= bbx1; fsx++) {
+            for (var fsy = bby0; fsy <= bby1; fsy++) {
+              if (inB(fsx, fsy) && isMachine(get(fsx, fsy)) && !selectedSet.has(I(fsx, fsy))) {
+                var fcells = findMachine(fsx, fsy);
+                fcells.forEach(function(c) {
+                  if (!selectedSet.has(I(c.x, c.y))) {
+                    selectedCells.push(c);
+                    selectedSet.add(I(c.x, c.y));
+                  }
+                });
+              }
+            }
+          }
+          updateSelectUI();
+        }
+        return;
+      }
+      if (shiftLineActive) {
+        placeLine(shiftLineStartX, shiftLineStartY, shiftLineEndX, shiftLineEndY);
+        shiftLineActive = false;
+        return;
+      }
+      if (e.button === 2) mouseRight = false;
+      else {
+        mouseDown = false;
+        if (isDrawingSolids) {
+          updateRigidBodies();
+          isDrawingSolids = false;
+        }
+      }
+    });
+    canvas.addEventListener('mouseleave', function() {
+      if (isPanning) {
+        isPanning = false;
+        canvas.style.cursor = currentCat === 'move' || currentCat === 'select' ? 'grab' : 'crosshair';
+      }
+      if (boxSelecting) boxSelecting = false;
+      if (shiftLineActive) shiftLineActive = false;
+      if (isDrawingSolids) {
+        updateRigidBodies();
+        isDrawingSolids = false;
+      }
+      mouseDown = false;
+      mouseRight = false;
+      mouseWorldX = -100;
+      mouseWorldY = -100;
+      prevWorldX = -100;
+      prevWorldY = -100;
+    });
+    canvas.addEventListener('mousemove', function(e) {
+      if (isPanning) {
+        var pr = canvas.getBoundingClientRect();
+        var cpdx = (e.clientX - panStartSX) / pr.width * canvas.width;
+        var cpdy = (e.clientY - panStartSY) / pr.height * canvas.height;
+        viewX = Math.round(panStartVX - cpdx / ePix);
+        viewY = Math.round(panStartVY - cpdy / ePix);
+        viewX = Math.max(0, Math.min(WCOLS - visibleCols, viewX));
+        viewY = Math.max(0, Math.min(WROWS - visibleRows, viewY));
+        return;
+      }
+      if (boxSelecting) {
+        updateMousePos(e);
+        boxEndX = mouseWorldX;
+        boxEndY = mouseWorldY;
+        return;
+      }
+      updateMousePos(e);
+      if (shiftLineActive) {
+        shiftLineEndX = mouseWorldX;
+        shiftLineEndY = mouseWorldY;
+      }
+    });
+    canvas.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    });
+    canvas.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      if (e.shiftKey || e.ctrlKey) {
+        var mwx = mouseWorldX,
+          mwy = mouseWorldY;
+        if (e.deltaY < 0) zoom = Math.min(4, zoom + 0.1);
+        else zoom = Math.max(0.25, zoom - 0.1);
+        ePix = Math.max(1, Math.round(PIXEL * zoom));
+        visibleCols = Math.floor(canvas.width / ePix);
+        visibleRows = Math.floor(canvas.height / ePix);
+        var zr = canvas.getBoundingClientRect();
+        var zcpx = (e.clientX - zr.left) / zr.width * canvas.width;
+        var zcpy = (e.clientY - zr.top) / zr.height * canvas.height;
+        var zsx = Math.floor(zcpx / ePix),
+          zsy = Math.floor(zcpy / ePix);
+        viewX = Math.round(mwx - zsx);
+        viewY = Math.round(mwy - zsy);
+        viewX = Math.max(0, Math.min(WCOLS - visibleCols, viewX));
+        viewY = Math.max(0, Math.min(WROWS - visibleRows, viewY));
+        return;
+      }
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        viewX += e.deltaX > 0 ? 15 : -15;
+        viewX = Math.max(0, Math.min(WCOLS - visibleCols, viewX));
+      } else {
+        brushRadius = Math.max(0, Math.min(200, brushRadius + (e.deltaY > 0 ? 1 : -1)));
+        document.getElementById('brushSize').value = brushRadius;
+        document.getElementById('brushVal').textContent = brushRadius;
+      }
+    }, {
+      passive: false
+    });
+    canvas.addEventListener('auxclick', function(e) {
+      if (e.button === 1) e.preventDefault();
+    });
+    canvas.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      mouseDown = true;
+      updateTouchPos(e);
+      prevWorldX = mouseWorldX;
+      prevWorldY = mouseWorldY;
+      isDrawingSolids = isSolid(currentMat);
+    }, {
+      passive: false
+    });
+    canvas.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      updateTouchPos(e);
+    }, {
+      passive: false
+    });
+    canvas.addEventListener('touchend', function() {
+      if (isDrawingSolids) {
+        updateRigidBodies();
+        isDrawingSolids = false;
+      }
+      mouseDown = false;
+    });
+    document.addEventListener('keydown', function(e) {
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedCells.length > 0 && currentCat === 'select') {
+        e.preventDefault();
+        selectedCells.forEach(function(c) {
+          setCell(c.x, c.y, EMPTY);
+        });
+        clearSelection();
+      }
+    });
+
+    function findMachine(sx, sy) {
+      var mat = get(sx, sy);
+      if (!isMachine(mat)) return [];
+      var vis = new Set();
+      var queue = [sx, sy];
+      var cells = [];
+      vis.add(I(sx, sy));
+      var dd = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1]
+      ];
+      while (queue.length > 0) {
+        var cx = queue.shift(),
+          cy = queue.shift();
+        cells.push({
+          x: cx,
+          y: cy
+        });
+        for (var d = 0; d < 4; d++) {
+          var nx = cx + dd[d][0],
+            ny = cy + dd[d][1];
+          if (!inB(nx, ny)) continue;
+          var ni = I(nx, ny);
+          if (!vis.has(ni) && grid[ni] === mat) {
+            vis.add(ni);
+            queue.push(nx, ny);
+          }
+        }
+      }
+      return cells;
+    }
+
+    function clearSelection() {
+      selectedCells = [];
+      selectedSet.clear();
+      updateSelectUI();
+    }
+
+    function updateSelectUI() {
+      document.getElementById('selCount').textContent = selectedCells.length + ' cells';
+      var hasConv = false,
+        firstDir = 0;
+      for (var i = 0; i < selectedCells.length; i++) {
+        var ci = I(selectedCells[i].x, selectedCells[i].y);
+        if (grid[ci] === CONVEYOR) {
+          hasConv = true;
+          firstDir = machineDir[ci];
+          break;
+        }
+      }
+      document.getElementById('selDir').style.display = hasConv ? 'inline-block' : 'none';
+      if (hasConv) document.getElementById('selDir').value = firstDir;
+    }
+
+    function updateMousePos(e) {
+      var r = canvas.getBoundingClientRect();
+      var cpx = (e.clientX - r.left) / r.width * canvas.width;
+      var cpy = (e.clientY - r.top) / r.height * canvas.height;
+      mouseWorldX = Math.floor(cpx / ePix) + viewX;
+      mouseWorldY = Math.floor(cpy / ePix) + viewY;
+    }
+
+    function updateTouchPos(e) {
+      var t = e.touches[0],
+        r = canvas.getBoundingClientRect();
+      var cpx = (t.clientX - r.left) / r.width * canvas.width;
+      var cpy = (t.clientY - r.top) / r.height * canvas.height;
+      mouseWorldX = Math.floor(cpx / ePix) + viewX;
+      mouseWorldY = Math.floor(cpy / ePix) + viewY;
+    }
+    var categories = {};
+    categories.erase = [{
+      mat: EMPTY,
+      img: IMG_ERASE,
+      label: 'Erase'
+    }];
+    categories.move = [];
+    categories.powders = [{
+      mat: SAND,
+      img: IMG_SAND,
+      label: 'Sand'
+    }, {
+      mat: DIRT,
+      img: IMG_DIRT,
+      label: 'Dirt'
+    }, {
+      mat: SEED,
+      img: IMG_SEED,
+      label: 'Seed'
+    }, {
+      mat: SAWDUST,
+      img: IMG_SAWDUST,
+      label: 'Sawdust'
+    }, {
+      mat: GRAVEL,
+      img: IMG_GRAVEL,
+      label: 'Gravel'
+    }];
+    categories.solids = [{
+      mat: STONE,
+      img: IMG_STONE,
+      label: 'Stone'
+    }, {
+      mat: WOOD,
+      img: IMG_WOOD,
+      label: 'Wood'
+    }];
+    categories.fluids = [{
+      mat: WATER,
+      img: IMG_WATER,
+      label: 'Water'
+    }, {
+      mat: LAVA,
+      img: IMG_LAVA,
+      label: 'Lava'
+    }];
+    categories.nature = [{
+      mat: SEED,
+      img: IMG_SEED,
+      label: 'Seed'
+    }, {
+      mat: LEAF,
+      img: IMG_LEAF,
+      label: 'Leaf'
+    }, {
+      mat: WOOD,
+      img: IMG_WOOD,
+      label: 'Wood'
+    }];
+    categories.effects = [{
+      mat: FIRE,
+      img: IMG_FIRE,
+      label: 'Fire'
+    }, {
+      mat: SMOKE,
+      img: IMG_SMOKE,
+      label: 'Smoke'
+    }, {
+      mat: STEAM,
+      img: IMG_STEAM,
+      label: 'Steam'
+    }, {
+      mat: LIGHTNING,
+      img: IMG_LIGHTNING,
+      label: 'Lightning'
+    }];
+    categories.machinery = [{
+      mat: CONVEYOR,
+      img: IMG_CONVEYOR,
+      label: 'Conveyor'
+    }, {
+      mat: GRINDER,
+      img: IMG_GRINDER,
+      label: 'Grinder'
+    }];
+    categories.specialty = [{
+      mat: TNT,
+      img: IMG_TNT,
+      label: 'TNT'
+    }, {
+      mat: NUKE,
+      img: IMG_NUKE,
+      label: 'Nuke'
+    }, {
+      mat: FUSE,
+      img: IMG_FUSE,
+      label: 'Fuse'
+    }, {
+      mat: SPARK,
+      img: IMG_SPARK,
+      label: 'Spark'
+    }];
+    categories.all = [{
+      mat: SAND,
+      img: IMG_SAND,
+      label: 'Sand'
+    }, {
+      mat: DIRT,
+      img: IMG_DIRT,
+      label: 'Dirt'
+    }, {
+      mat: SEED,
+      img: IMG_SEED,
+      label: 'Seed'
+    }, {
+      mat: SAWDUST,
+      img: IMG_SAWDUST,
+      label: 'Sawdust'
+    }, {
+      mat: GRAVEL,
+      img: IMG_GRAVEL,
+      label: 'Gravel'
+    }, {
+      mat: STONE,
+      img: IMG_STONE,
+      label: 'Stone'
+    }, {
+      mat: WOOD,
+      img: IMG_WOOD,
+      label: 'Wood'
+    }, {
+      mat: LEAF,
+      img: IMG_LEAF,
+      label: 'Leaf'
+    }, {
+      mat: WATER,
+      img: IMG_WATER,
+      label: 'Water'
+    }, {
+      mat: LAVA,
+      img: IMG_LAVA,
+      label: 'Lava'
+    }, {
+      mat: FIRE,
+      img: IMG_FIRE,
+      label: 'Fire'
+    }, {
+      mat: SMOKE,
+      img: IMG_SMOKE,
+      label: 'Smoke'
+    }, {
+      mat: STEAM,
+      img: IMG_STEAM,
+      label: 'Steam'
+    }, {
+      mat: LIGHTNING,
+      img: IMG_LIGHTNING,
+      label: 'Lightning'
+    }, {
+      mat: CONVEYOR,
+      img: IMG_CONVEYOR,
+      label: 'Conveyor'
+    }, {
+      mat: GRINDER,
+      img: IMG_GRINDER,
+      label: 'Grinder'
+    }, {
+      mat: TNT,
+      img: IMG_TNT,
+      label: 'TNT'
+    }, {
+      mat: NUKE,
+      img: IMG_NUKE,
+      label: 'Nuke'
+    }, {
+      mat: FUSE,
+      img: IMG_FUSE,
+      label: 'Fuse'
+    }, {
+      mat: SPARK,
+      img: IMG_SPARK,
+      label: 'Spark'
+    }];
+    var toolBtns = [{
+      cat: 'erase',
+      icon: 'fa-eraser',
+      label: 'Erase'
+    }, {
+      cat: 'move',
+      icon: 'fa-arrows-alt',
+      label: 'Move'
+    }, {
+      sep: true
+    }, {
+      cat: 'powders',
+      icon: 'fa-mountain',
+      label: 'Powders'
+    }, {
+      cat: 'solids',
+      icon: 'fa-cube',
+      label: 'Solids'
+    }, {
+      cat: 'fluids',
+      icon: 'fa-water',
+      label: 'Fluids'
+    }, {
+      cat: 'nature',
+      icon: 'fa-tree',
+      label: 'Nature'
+    }, {
+      sep: true
+    }, {
+      cat: 'effects',
+      icon: 'fa-fire',
+      label: 'Effects'
+    }, {
+      cat: 'machinery',
+      icon: 'fa-cogs',
+      label: 'Machinery'
+    }, {
+      sep: true
+    }, {
+      cat: 'specialty',
+      icon: 'fa-bomb',
+      label: 'Specialty'
+    }, {
+      sep: true
+    }, {
+      cat: 'all',
+      icon: 'fa-th',
+      label: 'All'
+    }, {
+      sep: true
+    }, {
+      cat: 'select',
+      icon: 'fa-mouse-pointer',
+      label: 'Select'
+    }];
+    var toolbarRow = document.getElementById('toolbarRow');
+    toolBtns.forEach(function(tb) {
+      if (tb.sep) {
+        var s = document.createElement('div');
+        s.className = 'tool-sep';
+        toolbarRow.appendChild(s);
+        return;
+      }
+      var b = document.createElement('button');
+      b.className = 'tool-cat' + (tb.cat === 'powders' ? ' active' : '');
+      b.dataset.cat = tb.cat;
+      b.innerHTML = '<i class="fas ' + tb.icon + '"></i><span>' + tb.label + '</span>';
+      b.addEventListener('click', function() {
+        toolbarRow.querySelectorAll('.tool-cat').forEach(function(x) {
+          x.classList.remove('active');
+        });
+        b.classList.add('active');
+        clearSelection();
+        showCategory(tb.cat);
+        currentCat = tb.cat;
+        if (tb.cat === 'move' || tb.cat === 'select') canvas.style.cursor = 'grab';
+        else canvas.style.cursor = 'crosshair';
+      });
+      toolbarRow.appendChild(b);
+    });
+    var subContent = document.getElementById('subContent');
+    var dirGroup = document.getElementById('dirGroup');
+
+    function showCategory(cat) {
+      subContent.innerHTML = '';
+      subContent.style.display = 'flex';
+      dirGroup.style.display = 'none';
+      document.getElementById('selectPanel').style.display = 'none';
+      if (cat === 'select') {
+        subContent.style.display = 'none';
+        dirGroup.style.display = 'none';
+        document.getElementById('selectPanel').style.display = 'flex';
+        updateSelectUI();
+        return;
+      }
+      var items = categories[cat];
+      if (!items || items.length === 0) {
+        var msg = 'Not available yet';
+        if (cat === 'move') msg = 'Shift+drag or scroll to pan';
+        var ph = document.createElement('div');
+        ph.className = 'sub-msg';
+        ph.textContent = msg;
+        subContent.appendChild(ph);
+        return;
+      }
+      items.forEach(function(item, idx) {
+        var btn = document.createElement('button');
+        btn.className = 'mat-pick' + (idx === 0 ? ' active' : '');
+        btn.innerHTML = '<img src="' + item.img + '"><span class="label">' + item.label + '</span>';
+        btn.addEventListener('click', function() {
+          subContent.querySelectorAll('.mat-pick').forEach(function(b) {
+            b.classList.remove('active');
+          });
+          btn.classList.add('active');
+          currentMat = item.mat;
+          if (item.mat === CONVEYOR) dirGroup.style.display = 'flex';
+          else dirGroup.style.display = 'none';
+        });
+        subContent.appendChild(btn);
+        if (idx === 0) {
+          currentMat = item.mat;
+          if (item.mat === CONVEYOR) dirGroup.style.display = 'flex';
+        }
+      });
+    }
+    var brushSlider = document.getElementById('brushSize');
+    var brushValEl = document.getElementById('brushVal');
+    brushSlider.addEventListener('input', function() {
+      brushRadius = parseInt(brushSlider.value);
+      brushValEl.textContent = brushRadius;
+    });
+    var speedSelect = document.getElementById('simSpeed');
+    for (var sp = 0; sp <= 20; sp++) {
+      var opt = document.createElement('option');
+      opt.value = sp;
+      if (sp === 0) opt.textContent = 'Pause';
+      else opt.textContent = sp + 'x';
+      if (sp === 1) opt.selected = true;
+      speedSelect.appendChild(opt);
+    }
+    speedSelect.addEventListener('change', function() {
+      simSpeed = parseInt(this.value);
+    });
+    document.getElementById('conveyorDir').addEventListener('change', function() {
+      currentConveyorDir = parseInt(this.value);
+    });
+    document.getElementById('clearBtn').addEventListener('click', function() {
+      grid.fill(0);
+      colorGrid.fill(0);
+      lifetime.fill(0);
+      growthStage.fill(0);
+      treeMaxStage.fill(0);
+      machineDir.fill(0);
+      machineLX.fill(0);
+      machineLY.fill(0);
+      treeOwner.fill(0);
+      nextTreeID = 1;
+    });
+    document.getElementById('importBtn').addEventListener('click', function() {});
+    document.getElementById('exportBtn').addEventListener('click', function() {
+      var l = document.createElement('a');
+      l.download = 'sandbox.png';
+      l.href = canvas.toDataURL();
+      l.click();
+    });
+    document.querySelectorAll('.scene-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.scene-tab').forEach(function(t) {
+          t.classList.remove('active');
+        });
+        tab.classList.add('active');
+        grid.fill(0);
+        colorGrid.fill(0);
+        lifetime.fill(0);
+        growthStage.fill(0);
+        treeMaxStage.fill(0);
+        machineDir.fill(0);
+        machineLX.fill(0);
+        machineLY.fill(0);
+        treeOwner.fill(0);
+        nextTreeID = 1;
+        if (tab.dataset.scene === 'landscape') generateWorld('-1');
+      });
+    });
+    document.getElementById('genBtn').addEventListener('click', function() {
+      document.querySelectorAll('.scene-tab').forEach(function(t) {
+        t.classList.remove('active');
+      });
+      var seed = document.getElementById('seedInput').value.trim();
+      var newW = parseInt(document.getElementById('worldW').value) || 1680;
+      var newH = parseInt(document.getElementById('worldH').value) || 540;
+      newW = Math.max(200, Math.min(4000, newW));
+      newH = Math.max(100, Math.min(2000, newH));
+      if (newW !== WCOLS || newH !== WROWS) {
+        WCOLS = newW;
+        WROWS = newH;
+        grid = new Uint8Array(WCOLS * WROWS);
+        colorGrid = new Uint32Array(WCOLS * WROWS);
+        lifetime = new Int16Array(WCOLS * WROWS);
+        growthStage = new Uint8Array(WCOLS * WROWS);
+        treeMaxStage = new Uint8Array(WCOLS * WROWS);
+        supported = new Uint8Array(WCOLS * WROWS);
+        processed = new Uint8Array(WCOLS * WROWS);
+        upd = new Uint8Array(WCOLS * WROWS);
+        visGen = new Uint32Array(WCOLS * WROWS);
+        machineDir = new Uint8Array(WCOLS * WROWS);
+        machineLX = new Uint8Array(WCOLS * WROWS);
+        machineLY = new Uint8Array(WCOLS * WROWS);
+        treeOwner = new Uint8Array(WCOLS * WROWS);
+      } else {
+        grid.fill(0);
+        colorGrid.fill(0);
+        lifetime.fill(0);
+        growthStage.fill(0);
+        treeMaxStage.fill(0);
+        machineDir.fill(0);
+        machineLX.fill(0);
+        machineLY.fill(0);
+        treeOwner.fill(0);
+        nextTreeID = 1;
+      }
+      ePix = Math.max(1, Math.round(PIXEL * zoom));
+      visibleCols = Math.floor(canvas.width / ePix);
+      visibleRows = Math.floor(canvas.height / ePix);
+      viewX = 0;
+      viewY = 0;
+      generateWorld(seed || '-1');
+    });
+    var settingsBtn = document.getElementById('settingsBtn');
+    var settingsPanel = document.getElementById('settingsPanel');
+    settingsBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      settingsPanel.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (!settingsPanel.contains(e.target) && e.target !== settingsBtn && !settingsBtn.contains(e.target)) settingsPanel.classList.remove('open');
+    });
+    settingsPanel.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+    document.getElementById('aboutBtn').addEventListener('click', function() {
+      document.getElementById('aboutModal').classList.add('open');
+    });
+    document.getElementById('manualBtn').addEventListener('click', function() {
+      document.getElementById('manualModal').classList.add('open');
+    });
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      alert('Coming soon...');
+    });
+    document.getElementById('bellBtn').addEventListener('click', function() {
+      alert('Coming soon...');
+    });
+    document.querySelectorAll('.modal-overlay').forEach(function(m) {
+      m.addEventListener('click', function(e) {
+        if (e.target === m) m.classList.remove('open');
+      });
+    });
+
+    function applySettings(s) {
+      var scale = (s.uiScale || 10) / 10;
+      document.documentElement.style.setProperty('--ui-scale', scale);
+      document.getElementById('uiScaleSlider').parentElement.querySelector('.set-val').textContent = scale.toFixed(1);
+      var bars = {
+        topBar: s.topBar || 42,
+        toolbarRow: s.toolbar || 46,
+        subToolBar: s.subBar || 44,
+        bottomBar: s.bottomBar || 40
+      };
+      for (var bk in bars) {
+        var el = document.getElementById(bk);
+        if (el) el.style.height = bars[bk] + 'px';
+        var sl = document.querySelector('[data-target="' + bk + '"]');
+        if (sl) sl.parentElement.querySelector('.set-val').textContent = bars[bk];
+      }
+      zoom = s.zoom || 1;
+      var newW = Math.max(200, Math.min(4000, s.worldW || 1680));
+      var newH = Math.max(100, Math.min(2000, s.worldH || 540));
+      document.getElementById('worldW').value = newW;
+      document.getElementById('worldH').value = newH;
+      document.getElementById('airHeight').value = s.airHeight || 120;
+      if (newW !== WCOLS || newH !== WROWS) {
+        WCOLS = newW;
+        WROWS = newH;
+        grid = new Uint8Array(WCOLS * WROWS);
+        colorGrid = new Uint32Array(WCOLS * WROWS);
+        lifetime = new Int16Array(WCOLS * WROWS);
+        growthStage = new Uint8Array(WCOLS * WROWS);
+        treeMaxStage = new Uint8Array(WCOLS * WROWS);
+        supported = new Uint8Array(WCOLS * WROWS);
+        processed = new Uint8Array(WCOLS * WROWS);
+        upd = new Uint8Array(WCOLS * WROWS);
+        visGen = new Uint32Array(WCOLS * WROWS);
+        machineDir = new Uint8Array(WCOLS * WROWS);
+        machineLX = new Uint8Array(WCOLS * WROWS);
+        machineLY = new Uint8Array(WCOLS * WROWS);
+        treeOwner = new Uint8Array(WCOLS * WROWS);
+        selectedCells = [];
+        selectedSet = new Set();
+        viewX = 0;
+        viewY = 0;
+      }
+      resizeCanvas();
+    }
+
+    function loadSettings() {
+      var raw = localStorage.getItem('phimmySettings');
+      if (!raw) return;
+      try {
+        var s = JSON.parse(raw);
+        document.getElementById('uiScaleSlider').value = s.uiScale || 10;
+        if (s.topBar) document.querySelector('[data-target="topBar"]').value = s.topBar;
+        if (s.toolbar) document.querySelector('[data-target="toolbarRow"]').value = s.toolbar;
+        if (s.subBar) document.querySelector('[data-target="subToolBar"]').value = s.subBar;
+        if (s.bottomBar) document.querySelector('[data-target="bottomBar"]').value = s.bottomBar;
+        document.getElementById('worldW').value = s.worldW || 1680;
+        document.getElementById('worldH').value = s.worldH || 540;
+        document.getElementById('airHeight').value = s.airHeight || 120;
+        applySettings(s);
+      } catch (e) {}
+    }
+    document.getElementById('settingsSaveBtn').addEventListener('click', function() {
+      var s = {
+        uiScale: parseInt(document.getElementById('uiScaleSlider').value),
+        topBar: parseInt(document.querySelector('[data-target="topBar"]').value),
+        toolbar: parseInt(document.querySelector('[data-target="toolbarRow"]').value),
+        subBar: parseInt(document.querySelector('[data-target="subToolBar"]').value),
+        bottomBar: parseInt(document.querySelector('[data-target="bottomBar"]').value),
+        worldW: parseInt(document.getElementById('worldW').value) || 1680,
+        worldH: parseInt(document.getElementById('worldH').value) || 540,
+        airHeight: parseInt(document.getElementById('airHeight').value) || 120,
+        zoom: zoom
+      };
+      localStorage.setItem('phimmySettings', JSON.stringify(s));
+      applySettings(s);
+      settingsPanel.classList.remove('open');
+    });
+    document.getElementById('selDir').addEventListener('change', function() {
+      var dir = parseInt(this.value);
+      selectedCells.forEach(function(c) {
+        var ci = I(c.x, c.y);
+        if (grid[ci] === CONVEYOR) machineDir[ci] = dir;
+      });
+    });
+    document.getElementById('selRotate').addEventListener('click', function() {
+      selectedCells.forEach(function(c) {
+        var ci = I(c.x, c.y);
+        if (grid[ci] === CONVEYOR) machineDir[ci] = machineDir[ci] === 0 ? 1 : 0;
+      });
+      var fd = -1;
+      for (var i = 0; i < selectedCells.length; i++) {
+        var ci = I(selectedCells[i].x, selectedCells[i].y);
+        if (grid[ci] === CONVEYOR) {
+          fd = machineDir[ci];
+          break;
+        }
+      }
+      if (fd >= 0) document.getElementById('selDir').value = fd;
+    });
+    document.getElementById('selDelete').addEventListener('click', function() {
+      selectedCells.forEach(function(c) {
+        setCell(c.x, c.y, EMPTY);
+      });
+      clearSelection();
+    });
+
+    function hashStr(s) {
+      var h = 0;
+      for (var i = 0; i < s.length; i++) {
+        h = ((h << 5) - h) + s.charCodeAt(i);
+        h |= 0;
+      }
+      return Math.abs(h) || 1;
+    }
+
+    function createRng(seed) {
+      var s = seed;
+      return function() {
+        s = (s * 1103515245 + 12345) & 0x7fffffff;
+        return s / 0x7fffffff;
+      };
+    }
+
+    function generateWorld(seedStr) {
+      var seed;
+      if (seedStr === '-1') {
+        seed = Math.floor(Math.random() * 999999);
+        document.getElementById('seedInput').value = seed;
+      } else {
+        seed = isNaN(parseInt(seedStr)) ? hashStr(seedStr) : Math.abs(parseInt(seedStr)) || 1;
+      }
+      var rng = createRng(seed);
+      var numHills = Math.floor(rng() * 8);
+      var hasLake = rng() < 0.6;
+      var userAir = parseInt(document.getElementById('airHeight').value) || 120;
+      var baseGround = userAir + (rng() - 0.5) * 40;
+      var dirtThick = 4 + Math.floor(rng() * 5);
+      var waterLevel = baseGround - 5;
+      var hills = [];
+      for (var h = 0; h < numHills; h++) hills.push({
+        pos: 0.05 + rng() * 0.9,
+        height: 20 + rng() * 50,
+        width: 0.04 + rng() * 0.12
+      });
+      var lake = null;
+      if (hasLake) lake = {
+        pos: 0.1 + rng() * 0.8,
+        width: 0.05 + rng() * 0.15,
+        depth: 20 + rng() * 50
+      };
+      var n1a = rng() * 6.28,
+        n1f = 15 + rng() * 30;
+      var n2a = rng() * 6.28,
+        n2f = 30 + rng() * 50,
+        na = 1.5 + rng() * 2.5;
+      var n3a = rng() * 6.28,
+        n3f = 60 + rng() * 80,
+        n3a2 = 0.5 + rng() * 1.5;
+
+      function groundH(t) {
+        var hh = baseGround;
+        for (var hi = 0; hi < hills.length; hi++) {
+          var d = (t - hills[hi].pos) / hills[hi].width;
+          hh -= Math.exp(-d * d * 2) * hills[hi].height;
+        }
+        if (lake) {
+          var ld = (t - lake.pos) / lake.width;
+          hh += Math.exp(-ld * ld * 2) * lake.depth;
+        }
+        hh += Math.sin(t * n1f + n1a) * na;
+        hh += Math.sin(t * n2f + n2a) * na * 0.5;
+        hh += Math.sin(t * n3f + n3a) * n3a2;
+        return hh;
+      }
+      for (var x = 0; x < WCOLS; x++) {
+        var t = x / WCOLS;
+        var gy = Math.floor(Math.max(waterLevel - 5, Math.min(WROWS - 2, groundH(t))));
+        for (var y = gy; y < WROWS && y < gy + dirtThick; y++) setCell(x, y, DIRT);
+        for (var y2 = gy + dirtThick; y2 < WROWS; y2++) setCell(x, y2, STONE);
+        for (var wy = Math.floor(waterLevel); wy < gy; wy++) setCell(x, wy, WATER);
+      }
+      for (var x2 = 0; x2 < WCOLS; x2++) {
+        var t2 = x2 / WCOLS;
+        var gy2 = Math.floor(Math.max(waterLevel - 5, Math.min(WROWS - 2, groundH(t2))));
+        if (gy2 > Math.floor(waterLevel) + 1) {
+          for (var dx = -4; dx <= 4; dx++) {
+            var ssx = x2 + dx;
+            if (!inB(ssx, Math.floor(waterLevel))) continue;
+            if (get(ssx, Math.floor(waterLevel)) !== WATER) {
+              for (var dy = -3; dy <= 4; dy++) {
+                var ssy = Math.floor(waterLevel) + dy;
+                if (inB(ssx, ssy) && get(ssx, ssy) === DIRT && rng() < 0.6) setCell(ssx, ssy, SAND);
+              }
+            }
+          }
+        }
+      }
+      var nt = Math.floor(30 + rng() * 80);
+      for (var ti = 0; ti < nt; ti++) {
+        var tx = Math.floor(rng() * WCOLS);
+        var tt = tx / WCOLS;
+        var tgy = Math.floor(Math.max(waterLevel - 5, Math.min(WROWS - 2, groundH(tt))));
+        if (tgy <= waterLevel + 3 && get(tx, tgy) !== WATER) placeTree(tx, tgy - 1);
+      }
+      viewY = Math.max(0, Math.min(Math.max(0, WROWS - visibleRows), Math.floor(waterLevel) - 40));
+      viewX = Math.max(0, Math.floor((WCOLS - visibleCols) / 2));
+      updateRigidBodies();
+    }
+
+    function resizeCanvas() {
+      var a = document.querySelector('.canvas-area');
+      var mw = a.clientWidth - 4,
+        mh = a.clientHeight - 4;
+      var asp = COLS / ROWS;
+      var w = mw,
+        h = w / asp;
+      if (h > mh) {
+        h = mh;
+        w = h * asp;
+      }
+      canvas.style.width = Math.floor(w) + 'px';
+      canvas.style.height = Math.floor(h) + 'px';
+    }
+    window.addEventListener('resize', resizeCanvas);
+    var pCountEl = document.getElementById('pCount');
+    showCategory('powders');
+    loadSettings();
+    generateWorld('-1');
+    resizeCanvas();
+
+    function loop() {
+      frameCount++;
+      ePix = Math.max(1, Math.round(PIXEL * zoom));
+      visibleCols = Math.floor(canvas.width / ePix);
+      visibleRows = Math.floor(canvas.height / ePix);
+      var maxVX = Math.max(0, WCOLS - visibleCols);
+      var maxVY = Math.max(0, WROWS - visibleRows);
+      if (viewX > maxVX) viewX = maxVX;
+      if (viewY > maxVY) viewY = maxVY;
+      simX0 = Math.max(0, viewX - BUF);
+      simY0 = Math.max(0, viewY - BUF);
+      simX1 = Math.min(WCOLS, viewX + visibleCols + BUF);
+      simY1 = Math.min(WROWS, viewY + visibleRows + BUF);
+      if (mouseDown && !isPanning) {
+        placeLine(prevWorldX, prevWorldY, mouseWorldX, mouseWorldY);
+        prevWorldX = mouseWorldX;
+        prevWorldY = mouseWorldY;
+      }
+      if (mouseRight) {
+        var pm = currentMat;
+        currentMat = EMPTY;
+        placeLine(prevWorldX, prevWorldY, mouseWorldX, mouseWorldY);
+        prevWorldX = mouseWorldX;
+        prevWorldY = mouseWorldY;
+        currentMat = pm;
+      }
+      if (simSpeed > 0) {
+        for (var s = 0; s < simSpeed; s++) {
+          updatePhysics();
+          updateExplosions();
+        }
+        if (!isDrawingSolids) updateRigidBodies();
+      }
+      render();
+      if (frameCount % 30 === 0) {
+        var c = 0;
+        for (var ci = 0; ci < grid.length; ci++) {
+          if (grid[ci] !== EMPTY) c++;
+        }
+        pCountEl.textContent = c.toLocaleString() + ' particles | ' + viewX + ',' + viewY;
+        document.getElementById('zoomInd').textContent = zoom.toFixed(1) + 'x';
+        var cleaned = [];
+        for (var sci = 0; sci < selectedCells.length; sci++) {
+          if (grid[I(selectedCells[sci].x, selectedCells[sci].y)] !== EMPTY) cleaned.push(selectedCells[sci]);
+        }
+        if (cleaned.length !== selectedCells.length) {
+          selectedCells = cleaned;
+          selectedSet.clear();
+          cleaned.forEach(function(c) {
+            selectedSet.add(I(c.x, c.y));
+          });
+          updateSelectUI();
+        }
+      }
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+  <div class="modal-overlay" id="aboutModal">
+    <div class="modal-box">
+      <h2>About</h2>
+      <p>Phimmy Physics is a pixel-based particle sandbox simulation. Place materials, build machines, and watch physics unfold in real time.</p>
+      <p>Features include powder physics, fluid dynamics, fire propagation, tree growth, conveyor belts, grinders, lightning strikes, and more.</p>
+      <p>Version 1.0</p>
+      <button class="close-modal" onclick="document.getElementById('aboutModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+  <div class="modal-overlay" id="manualModal">
+    <div class="modal-box">
+      <h2>Manual</h2>
+      <p><b>Left Click</b> - Place selected material</p>
+      <p><b>Right Click</b> - Erase</p>
+      <p><b>Middle Click / Shift+Drag / CTRL+Click</b> - Pan the view</p>
+      <p><b>Scroll Wheel</b> - Adjust brush size</p>
+      <p><b>Shift + Scroll / CTRL + Scroll</b> - Zoom in/out</p>
+      <p><b>Shift + Click (with material)</b> - Draw straight line from start to release point</p>
+      <p><b>Conveyor</b> - Moves particles above it in the selected direction. Places as a 5-wide belt asset.</p>
+      <p><b>Grinder</b> - Grinds wood and leaves into sawdust, stone into gravel. Places as a 3-wide asset.</p>
+      <p><b>Lightning</b> - Strikes from the sky down to cursor, destroying and igniting materials in its path.</p>
+      <p><b>Seed</b> - Plant on dirt or stone to grow a tree over time.</p>
+      <p><b>Fire</b> - Spreads to wood and leaves. Burns sawdust much faster than wood. Produces smoke.</p>
+      <p><b>Lava</b> - Turns water into steam, ignites nearby flammable materials.</p>
+      <button class="close-modal" onclick="document.getElementById('manualModal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</body>
+
+</html>
